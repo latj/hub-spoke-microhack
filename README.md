@@ -6,7 +6,8 @@
 
 [Challenge 1 : Connect to Azure SQL](#challenge-1--connect-to-azure-sql)
 
-[Challenge 2 : Implement Service Endpoints to restrict access to your Azure SQL Server](#challenge-2--implement-service-endpoints-to-restrict-access-to-your-azure-sql-server)
+[Challenge 2 : Route internet traffic through Azure Firewall]
+(# Challenge 2: Route internet traffic through Azure Firewall)
 
 [Challenge 3 : Deploy a Private Endpoint to utilise Azure Private Link for access to Azure SQL](#challenge-3--deploy-a-private-endpoint-to-utilise-azure-private-link-for-access-to-azure-sql)
 
@@ -86,6 +87,9 @@ Password: {as per above step}
 
 - Verify that your VNet Peering and Site-to-site VPN are funcitoning as expected. The easiest way to do this is as follows; Once you have Azure Bastion access to the desktop of *az-mgmt-vm*, launch remote desktop (mstsc), and attempt a connection to *onprem-mgmt-vm* (IP address 192.168.0.5). You should recieve the login prompt.
 
+
+
+# Challenge 1: Working with user defiend route UDR and Network Security Group NSG 
 # Challenge 2: Route internet traffic through Azure Firewall
 
 In this challenge you will explore how Contoso can address the performance problem reported by WVD users. You will build a secure edge in Azure, thus removing the need to route all internet-bound connections to Contoso's on-prem datacenter (red line). Routing WVD traffic directly to the internet via Azure Firewall reduces latency and improves user experience (green line).
@@ -108,17 +112,13 @@ In the Azure portal, go to your Azure Firewall instance's "Overview" and take no
 
 ![image](images/firewall-overview.png)
 
-Go to the Route Table "wvd-spoke-rt" and modify the next hop of the default route that you defined in the previous challenge. To do so, click on “Routes” on the menu on the left, find the custom default route that you defined in the previous challenge and click on it. Replace the next hop "Virtual Network Gateway" with the private IP of your Azure firewall instance. 
+Go to the Route Table "spoke-vnet-rt" and modify the next hop of the default route that you defined in the previous challenge. To do so, click on “Routes” on the menu on the left, find the custom default route that you defined in the previous challenge and click on it. Replace the next hop "Virtual Network Gateway" with the private IP of your Azure firewall instance. 
 
 ![image](images/default-via-azfw.png)
 
 Remove the default route configuration from the VPN gateway (configured in Challenge 1):
 
-`$gw= Get-AzVirtualNetworkGateway -Name hub-vpngw -ResourceGroupName internet-outbound-microhack-rg`
-
-`Remove-AzVirtualNetworkGatewayDefaultSite -VirtualNetworkGateway $gw`
-
-Verify that you no longer have connectivity to the internet from the wvd-workstation. Connections are now being routed to Azure Firewall, which is running with the default "deny all" policy.
+Verify that you no longer have connectivity to the internet from the az-mgmt-vm. Connections are now being routed to Azure Firewall, which is running with the default "deny all" policy.
 
 ## Task 3: Implement Contoso's security policy with Azure Firewall rules
 
