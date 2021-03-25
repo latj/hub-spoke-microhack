@@ -4,9 +4,15 @@
 
 [MicroHack introduction and context](#Scenario)
 
-[Challenge 1 : Working with user defiend route UDR and Network Security Group NSG](#challenge 1: Working with user defiend route UDR and Network Security Group NSG)
+[Pre-requisites](#Pre-requisites)
 
-[Challenge 3 : Deploy a Private Endpoint to utilise Azure Private Link for access to Azure SQL](# Challenge 2: Route internet traffic through Azure Firewall)
+[Challenge 1 : Working with user defiend route UDR and Network Security Group NSG](#Challenge-1:-Working-with-user-defiend-route-UDR-and-Network-Security-Group-NSG)
+
+[Challenge 3 : Route internet traffic through Azure Firewall](#Challenge-2:-Route-internet-traffic-through-Azure-Firewall)
+
+[Challenge 3: Control network with Aziure Policies](#Challenge-3:-Control-network-with-Azure-Policies)
+
+[Challenge 3: Monitoring](#Challenge-4:-Monitoring)
 
 
 # Scenario
@@ -25,7 +31,7 @@ In order to use the MicroHack time most effectively, the following tasks should 
 
 With these pre-requisites in place, we can focus on building the differentiated knowledge in Azure Networking that is required when working with the product, rather than spending hours repeating relatively simple tasks such as setting up Virtual Networks and Virtual Machines. 
 
-At the end of this section your base lab build looks as follows:
+At the end of the pre-requisites your base lab build looks as follows:
 
 ![image](images/hub-spoke.png)
 
@@ -34,9 +40,9 @@ In summary:
 - "On-Premises" environment simulated by Azure Virtual Network
 - On-Premises contains a management VM (*onprem-mgmt-vm*) and a dns server VM (*onprem-dns-vm*)
 - On-Premises is connected to Azure via a Site-to-Site VPN
-- Azure contains a simple Hub and Spoke topology, containing a management VM in the spoke (*az-mgmt-vm*) and a dns server VM in the hub (*az-dns-vm*)
-- Azure Bastion is deployed in all VNets to enable easy remote desktop access to the Windows VMs
-- All of the above is deployed within a single resource group called *privatelink-dns-microhack-rg*
+- Azure contains a simple Hub and Spoke topology, containing a management VMs in the spokes (*az-mgmt-vm, az-mgmt2-vm, az-srv-vm*) and a dns server VM in the hub (*az-dns-vm*)
+- Azure Bastion is deployed in hub VNet to enable easy remote desktop access to the Windows VMs
+- All of the above is deployed within a single resource group called *hub-spoke-microhack-rg*
 
 ## Task 1 : Deploy Template
 
@@ -82,13 +88,13 @@ Password: {as per above step}
 # Challenge 1: Understand vNet peering, UDR and NSG 
 
 
-# Challenge 3: Understand vNet peering, UDR and NSG 
+ 
 
 # Challenge 2: Route internet traffic through Azure Firewall
 
-In this challenge you will explore how Contoso can address the performance problem reported by WVD users. You will build a secure edge in Azure, thus removing the need to route all internet-bound connections to Contoso's on-prem datacenter (red line). Routing WVD traffic directly to the internet via Azure Firewall reduces latency and improves user experience (green line).
+In this challenge you will explore how we can send all traffic through a Firewall, instead of go direct to Internet. You will build a secure hub in Azure. Routing all traffic directly to the Azure Firewall.
 
-![image](images/forced-vs-direct.png)
+![image](images/hub-spoke-azfw.png)
 
 ## Task 1: Deploy Azure Firewall
 
@@ -98,7 +104,7 @@ In the Azure Portal, deploy a new Azure Firewall instance in the hub-vnet. A sub
 
 > Please note that the "Forced tunneling" switch must be disabled. The switch allows forwarding internet traffic to custom next hops (including gateways connected to remote networks) after it has been inspected by Azure Firewall. In this scenario, you are using Azure Firewall as your secure internet edge and want your internet traffic to egress to the internet directly, after being inspected by Azure Firewall.
 
-Your Azure Firewall instance will take about 10 minutes to deploy. When the deployment completes, go to the new firewall's overview tile a take note of its *private* IP address. This IP address will become the default gateway for Contoso's Azure VNets. 
+Your Azure Firewall instance will take about 10 minutes to deploy. When the deployment completes, go to the new firewall's overview tile a take note of its *private* IP address. 
 
 ## Task 2: Configure a default route via azure Firewall
 
@@ -110,57 +116,37 @@ Go to the Route Table "spoke-vnet-rt" and modify the next hop of the default rou
 
 ![image](images/default-via-azfw.png)
 
-Remove the default route configuration from the VPN gateway (configured in Challenge 1):
-
 Verify that you no longer have connectivity to the internet from the az-mgmt-vm. Connections are now being routed to Azure Firewall, which is running with the default "deny all" policy.
 
-## Task 3: Implement Contoso's security policy with Azure Firewall rules
+## Task 3: Implement policy with Azure Firewall rules to connect to on-premixes
 
-Configure Azure Firewall to implement the same internet access policy as Contoso's on-premises proxy:
+Configure Azure Firewall to implement the same access as before :
 
-- Access to "docs.microsoft.com" is allowed
-- Access to "ipinfo.io" is allowed
-- Access to any other sites is denied
+- Access from spoke-vnet to onprem-vnet is allowed
+- Access from spoke-vnet to spoke-vnet is allowed
+- Access to any destination is denied
 
 In the Azure Portal, create a new application rule collection for Azure Firewall as shown in the screenshot below.
 
 ![image](images/manual-azfw-policy.png)
 
-Confirm that you can now access https://ipinfo.io and https://docs.microsoft.com. Verify that your public IP address is now the public IP address of your Azure Firewall.
+Confirm that you can now access by usering following command
+
 
 ![image](images/azfw-public-ip.png)
 
 ## Task 4: Enable access to WVD endpoints via Azure Firewall
 
-In this task you will address the performance issues reported by Contoso's WVD users, by allowing direct access to WVD endpoints via Azure Firewall. 
 
-WVD session hosts connect to a list of well-known endpoints, documented [here](https://docs.microsoft.com/en-us/azure/virtual-desktop/safe-url-list#virtual-machines). Each WVD endpoint has an associated Azure Service Tag. 
-
-![image](images/wvd-endpoints.png)
-
-Azure Firewall supports service tags, which would make it easy to configure rules to allow access to WVD required URLs.  However, Azure Firewall rules allowing connections to "Azure Cloud" and "Internet" are too permissive and not compatible with Contoso's security requirements.
-
-You have negotiated with the security team a solution that strikes an acceptable trade-off between security and WVD performance:
-
-- Only the "Windows Virtual Desktop" service tag, which corresponds to a small set of Microsoft-controlled endpoints, will be used in the firewall configuration
-- For the other required URLs, application rules matching only the specific URLs will be used.
-
-To implement this policy, go to the "scripts/" directory and execute the wvd-firewall-rules.ps1 script. 
-
-  `cd internet-outbound/scripts`
-
-  `./wvd-firewall-rules.ps1 -AzFwName <your Azure Firewall name>`
-
-When done, go to your Azure Firewall configuration in the portal and verify that you have two rule collections (one network rule collection, one application rule collection) that allow access to the endpoints listed in the previous figure.
 
 ## :checkered_flag: Results
 
 You have implemented a secure internet edge based on Azure Firewall, which allows Contoso to control internet access for the wvd-workstation without routing traffic to the on-prem proxy. This approach reduces latency for connections between the wvd-workstation and the WVD control plane endpoints and helps improve the WVD user experience. It also allows Contoso to provide WVD users with access to external, trusted web sites directly from Azure.
 
-# Challenge 3: Understand vNet peering, UDR and NSG 
+# Challenge 3: Control network with Azure Policies
 
 
-# Challenge 3: Monitoring
+# Challenge 4: Monitoring
 
 # Finished? Delete your lab
 

@@ -36,6 +36,19 @@ resource "azurerm_virtual_network" "spoke-vnet" {
   }
 }
 
+resource "azurerm_virtual_network" "spoke2-vnet" {
+  name                = "spoke2-vnet"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.hub-spoke-microhack-rg.name
+  address_space       = ["10.2.0.0/16"]
+
+  tags = {
+    environment = "spoke2"
+    deployment  = "terraform"
+    microhack   = "hub-spoke"
+  }
+}
+
 #######################################################################
 ## Create Subnets
 #######################################################################
@@ -54,18 +67,17 @@ resource "azurerm_subnet" "hub-bastion-subnet" {
   address_prefix       = "10.0.1.0/27"
 }
 
+resource "azurerm_subnet" "hub-azurefirewall-subnet" {
+  name                 = "AzureFirewallSubnet"
+  resource_group_name  = azurerm_resource_group.hub-spoke-microhack-rg.name
+  virtual_network_name = azurerm_virtual_network.hub-vnet.name
+  address_prefix       = "10.0.1.0/27"
+}
 resource "azurerm_subnet" "hub-dns" {
   name                 = "DNSSubnet"
   resource_group_name  = azurerm_resource_group.hub-spoke-microhack-rg.name
   virtual_network_name = azurerm_virtual_network.hub-vnet.name
   address_prefix       = "10.0.0.0/24"
-}
-
-resource "azurerm_subnet" "spoke-bastion-subnet" {
-  name                 = "AzureBastionSubnet"
-  resource_group_name  = azurerm_resource_group.hub-spoke-microhack-rg.name
-  virtual_network_name = azurerm_virtual_network.spoke-vnet.name
-  address_prefix       = "10.1.1.0/27"
 }
 
 resource "azurerm_subnet" "spoke-infrastructure" {
@@ -75,6 +87,19 @@ resource "azurerm_subnet" "spoke-infrastructure" {
   address_prefix       = "10.1.0.0/24"
 }
 
+resource "azurerm_subnet" "spoke-server" {
+  name                 = "ServerSubnet"
+  resource_group_name  = azurerm_resource_group.hub-spoke-microhack-rg.name
+  virtual_network_name = azurerm_virtual_network.spoke-vnet.name
+  address_prefix       = "10.1.1.0/24"
+}
+
+resource "azurerm_subnet" "spoke2-infrastructure" {
+  name                 = "InfrastructureSubnet"
+  resource_group_name  = azurerm_resource_group.hub-spoke-microhack-rg.name
+  virtual_network_name = azurerm_virtual_network.spoke2-vnet.name
+  address_prefix       = "10.1.0.0/24"
+}
 #######################################################################
 ## Create Public IPs
 #######################################################################
@@ -129,24 +154,6 @@ resource "azurerm_bastion_host" "hub-bastion-host" {
   }
 }
 
-resource "azurerm_bastion_host" "spoke-bastion-host" {
-  name                = "spoke-bastion-host"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.hub-spoke-microhack-rg.name
-
-  ip_configuration {
-    name                 = "spoke-bastion-host"
-    subnet_id            = azurerm_subnet.spoke-bastion-subnet.id
-    public_ip_address_id = azurerm_public_ip.spoke-bastion-pip.id
-  }
-
-  tags = {
-    environment = "spoke"
-    deployment  = "terraform"
-    microhack   = "hub-spoke"
-  }
-}
-
 #######################################################################
 ## Create Network Peering
 #######################################################################
@@ -163,6 +170,17 @@ resource "azurerm_virtual_network_peering" "hub-spoke-peer" {
   depends_on                   = [azurerm_virtual_network.spoke-vnet, azurerm_virtual_network.hub-vnet, azurerm_virtual_network_gateway.hub-vnet-gateway]
 }
 
+resource "azurerm_virtual_network_peering" "hub-spoke2-peer" {
+  name                         = "hub-spoke2-peer"
+  resource_group_name          = azurerm_resource_group.hub-spoke-microhack-rg.name
+  virtual_network_name         = azurerm_virtual_network.hub-vnet.name
+  remote_virtual_network_id    = azurerm_virtual_network.spoke2-vnet.id
+  allow_virtual_network_access = true
+  allow_forwarded_traffic      = true
+  allow_gateway_transit        = true
+  use_remote_gateways          = false
+  depends_on                   = [azurerm_virtual_network.spoke2-vnet, azurerm_virtual_network.hub-vnet, azurerm_virtual_network_gateway.hub-vnet-gateway]
+}
 #######################################################################
 ## Create Network Interface
 #######################################################################
@@ -200,6 +218,25 @@ resource "azurerm_network_interface" "az-mgmt-nic" {
 
   tags = {
     environment = "spoke"
+    deployment  = "terraform"
+    microhack   = "hub-spoke"
+  }
+}
+
+resource "azurerm_network_interface" "az-srv-nic" {
+  name                 = "az-srv-nic"
+  location             = var.location
+  resource_group_name  = azurerm_resource_group.hub-spoke-microhack-rg.name
+  enable_ip_forwarding = false
+
+  ip_configuration {
+    name                          = "az-mgmt-nic"
+    subnet_id                     = azurerm_subnet.spoke-server.id
+    private_ip_address_allocation = "Dynamic"
+  }
+
+  tags = {
+    environment = "spoke2"
     deployment  = "terraform"
     microhack   = "hub-spoke"
   }
@@ -270,6 +307,44 @@ resource "azurerm_virtual_machine" "az-mgmt-vm" {
 
   os_profile {
     computer_name  = "az-mgmt-vm"
+    admin_username = var.username
+    admin_password = var.password
+  }
+
+  os_profile_windows_config {
+    provision_vm_agent = true
+  }
+
+  tags = {
+    environment = "spoke"
+    deployment  = "terraform"
+    microhack   = "hub-spoke"
+  }
+}
+
+resource "azurerm_virtual_machine" "az-srv-vm" {
+  name                  = "az-srv-vm"
+  location              = var.location
+  resource_group_name   = azurerm_resource_group.hub-spoke-microhack-rg.name
+  network_interface_ids = [azurerm_network_interface.az-srv-nic.id]
+  vm_size               = var.vmsize
+
+  storage_image_reference {
+    offer     = "WindowsServer"
+    publisher = "MicrosoftWindowsServer"
+    sku       = "2019-Datacenter"
+    version   = "latest"
+  }
+
+  storage_os_disk {
+    name              = "az-srv-osdisk"
+    caching           = "ReadWrite"
+    create_option     = "FromImage"
+    managed_disk_type = "Standard_LRS"
+  }
+
+  os_profile {
+    computer_name  = "az-srv-vm"
     admin_username = var.username
     admin_password = var.password
   }
