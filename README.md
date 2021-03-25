@@ -1,23 +1,13 @@
-# **Azure Private Link DNS MicroHack**
+# **Azure Hub Spoke MicroHack**
 
 # Contents
 
 [MicroHack introduction and context](#Scenario)
 
-[Challenge 1 : Connect to Azure SQL](#challenge-1--connect-to-azure-sql)
+[Challenge 1 : Working with user defiend route UDR and Network Security Group NSG](#challenge 1: Working with user defiend route UDR and Network Security Group NSG)
 
-[Challenge 2 : Route internet traffic through Azure Firewall]
-(# Challenge 2: Route internet traffic through Azure Firewall)
+[Challenge 3 : Deploy a Private Endpoint to utilise Azure Private Link for access to Azure SQL](# Challenge 2: Route internet traffic through Azure Firewall)
 
-[Challenge 3 : Deploy a Private Endpoint to utilise Azure Private Link for access to Azure SQL](#challenge-3--deploy-a-private-endpoint-to-utilise-azure-private-link-for-access-to-azure-sql)
-
-[Challenge 4 : Deny public access to Azure SQL Server](#challenge-4--deny-public-access-to-azure-sql-server)
-
-[Challenge 5 : Work with a custom DNS server inside of Azure](#challenge-5--work-with-a-custom-dns-server-inside-of-azure)
-
-[Challenge 6 : Use Private Link to access an Azure SQL database over a Private Hybrid Connection](#challenge-6--use-private-link-to-access-an-azure-sql-database-over-a-private-hybrid-connection)
-
-[Challenge 7 : (Warning! Stretch Goal / Advanced) Use Private Link from On-Premises without a pre-existing DNS Server in Azure](#challenge-7--warning-stretch-goal--advanced-use-private-link-from-on-premises-without-a-pre-existing-dns-server-in-azure)
 
 # Scenario
 
@@ -37,7 +27,7 @@ With these pre-requisites in place, we can focus on building the differentiated 
 
 At the end of this section your base lab build looks as follows:
 
-![image](images/base.PNG)
+![image](images/hub-spoke.png)
 
 In summary:
 
@@ -89,7 +79,11 @@ Password: {as per above step}
 
 
 
-# Challenge 1: Working with user defiend route UDR and Network Security Group NSG 
+# Challenge 1: Understand vNet peering, UDR and NSG 
+
+
+# Challenge 3: Understand vNet peering, UDR and NSG 
+
 # Challenge 2: Route internet traffic through Azure Firewall
 
 In this challenge you will explore how Contoso can address the performance problem reported by WVD users. You will build a secure edge in Azure, thus removing the need to route all internet-bound connections to Contoso's on-prem datacenter (red line). Routing WVD traffic directly to the internet via Azure Firewall reduces latency and improves user experience (green line).
@@ -163,7 +157,10 @@ When done, go to your Azure Firewall configuration in the portal and verify that
 
 You have implemented a secure internet edge based on Azure Firewall, which allows Contoso to control internet access for the wvd-workstation without routing traffic to the on-prem proxy. This approach reduces latency for connections between the wvd-workstation and the WVD control plane endpoints and helps improve the WVD user experience. It also allows Contoso to provide WVD users with access to external, trusted web sites directly from Azure.
 
+# Challenge 3: Understand vNet peering, UDR and NSG 
 
+
+# Challenge 3: Monitoring
 
 # Finished? Delete your lab
 
