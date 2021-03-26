@@ -36,19 +36,6 @@ resource "azurerm_virtual_network" "spoke-vnet" {
   }
 }
 
-resource "azurerm_virtual_network" "spoke2-vnet" {
-  name                = "spoke2-vnet"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.hub-spoke-microhack-rg.name
-  address_space       = ["10.2.0.0/16"]
-
-  tags = {
-    environment = "spoke2"
-    deployment  = "terraform"
-    microhack   = "hub-spoke"
-  }
-}
-
 #######################################################################
 ## Create Subnets
 #######################################################################
@@ -71,7 +58,7 @@ resource "azurerm_subnet" "hub-azurefirewall-subnet" {
   name                 = "AzureFirewallSubnet"
   resource_group_name  = azurerm_resource_group.hub-spoke-microhack-rg.name
   virtual_network_name = azurerm_virtual_network.hub-vnet.name
-  address_prefix       = "10.0.1.0/27"
+  address_prefix       = "10.0.4.0/27"
 }
 resource "azurerm_subnet" "hub-dns" {
   name                 = "DNSSubnet"
@@ -94,12 +81,7 @@ resource "azurerm_subnet" "spoke-server" {
   address_prefix       = "10.1.1.0/24"
 }
 
-resource "azurerm_subnet" "spoke2-infrastructure" {
-  name                 = "InfrastructureSubnet"
-  resource_group_name  = azurerm_resource_group.hub-spoke-microhack-rg.name
-  virtual_network_name = azurerm_virtual_network.spoke2-vnet.name
-  address_prefix       = "10.1.0.0/24"
-}
+
 #######################################################################
 ## Create Public IPs
 #######################################################################
@@ -170,17 +152,7 @@ resource "azurerm_virtual_network_peering" "hub-spoke-peer" {
   depends_on                   = [azurerm_virtual_network.spoke-vnet, azurerm_virtual_network.hub-vnet, azurerm_virtual_network_gateway.hub-vnet-gateway]
 }
 
-resource "azurerm_virtual_network_peering" "hub-spoke2-peer" {
-  name                         = "hub-spoke2-peer"
-  resource_group_name          = azurerm_resource_group.hub-spoke-microhack-rg.name
-  virtual_network_name         = azurerm_virtual_network.hub-vnet.name
-  remote_virtual_network_id    = azurerm_virtual_network.spoke2-vnet.id
-  allow_virtual_network_access = true
-  allow_forwarded_traffic      = true
-  allow_gateway_transit        = true
-  use_remote_gateways          = false
-  depends_on                   = [azurerm_virtual_network.spoke2-vnet, azurerm_virtual_network.hub-vnet, azurerm_virtual_network_gateway.hub-vnet-gateway]
-}
+
 #######################################################################
 ## Create Network Interface
 #######################################################################
@@ -236,7 +208,7 @@ resource "azurerm_network_interface" "az-srv-nic" {
   }
 
   tags = {
-    environment = "spoke2"
+    environment = "spoke"
     deployment  = "terraform"
     microhack   = "hub-spoke"
   }

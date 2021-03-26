@@ -87,8 +87,11 @@ Password: {as per above step}
 
 # Challenge 1: Understand vNet peering, UDR and NSG 
 
+## Task : Apply NSG on spoke Virtual Network
+## Task : Deploy a new spoke Virtual Network
 
- 
+## Task : Deploy a new Virtual Machine inside the spoke Virtual Network
+
 
 # Challenge 2: Route internet traffic through Azure Firewall
 

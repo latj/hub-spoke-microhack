@@ -32,3 +32,52 @@ resource "azurerm_virtual_machine_extension" "install-dns-az-dc" {
     }
 SETTINGS
 }
+
+##########################################################
+## Install IIS role on onprem and AZ servers
+##########################################################
+
+resource "azurerm_virtual_machine_extension" "install-iis-onprem-vm" {
+    
+  name                 = "install-iis-onprem-vm"
+  virtual_machine_id   = azurerm_virtual_machine.onprem-mgmt-vm.id
+  publisher            = "Microsoft.Compute"
+  type                 = "CustomScriptExtension"
+  type_handler_version = "1.9"
+
+   settings = <<SETTINGS
+    {
+        "commandToExecute":"powershell -ExecutionPolicy Unrestricted Add-WindowsFeature Web-Server; powershell -ExecutionPolicy Unrestricted Add-Content -Path \"C:\\inetpub\\wwwroot\\Default.htm\" -Value $($env:computername)"
+    }
+SETTINGS
+}
+
+resource "azurerm_virtual_machine_extension" "install-iis-az-mgmt-vm" {
+    
+  name                 = "install-iis-az-mgmt-vm"
+  virtual_machine_id   = azurerm_virtual_machine.az-mgmt-vm.id
+  publisher            = "Microsoft.Compute"
+  type                 = "CustomScriptExtension"
+  type_handler_version = "1.9"
+
+   settings = <<SETTINGS
+    {
+        "commandToExecute":"powershell -ExecutionPolicy Unrestricted Add-WindowsFeature Web-Server; powershell -ExecutionPolicy Unrestricted Add-Content -Path \"C:\\inetpub\\wwwroot\\Default.htm\" -Value $($env:computername)"
+    }
+SETTINGS
+}
+
+resource "azurerm_virtual_machine_extension" "install-iis-az-srv-vm" {
+    
+  name                 = "install-iis-az-srv-vm"
+  virtual_machine_id   = azurerm_virtual_machine.az-srv-vm.id
+  publisher            = "Microsoft.Compute"
+  type                 = "CustomScriptExtension"
+  type_handler_version = "1.9"
+
+   settings = <<SETTINGS
+    {
+        "commandToExecute":"powershell -ExecutionPolicy Unrestricted Add-WindowsFeature Web-Server; powershell -ExecutionPolicy Unrestricted Add-Content -Path \"C:\\inetpub\\wwwroot\\Default.htm\" -Value $($env:computername)"
+    }
+SETTINGS
+}
