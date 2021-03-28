@@ -2,7 +2,7 @@
 
 # Contents
 
-[MicroHack introduction and context](#Scenario)
+[MicroHack introduction and context](#Introduction)
 
 [Pre-requisites](#Pre-requisites)
 
@@ -15,13 +15,28 @@
 [Challenge 3: Monitoring](#Challenge-4:-Monitoring)
 
 
-# Scenario
+# Introduction
 
-TBD
+Azure hub-spoke network topology can be a core component in a customer's Azure foundation. In [this article](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/enterprise-scale/network-topology-and-connectivity), the Enterprise Scale Framework explains how hub spoke may be used to create a network topology underpinning customer's foundation.
+It is therefore important to understand how hub-spoke enables connectivity within Azure. The purpose of this MicroHack is to build that understanding by exploring some of the capabilities.
+The lab starts with a single Hub with Spoke VNETs and default routing. We then connect a simulated on-premise location via S2S VPN. 
+Prior to starting this MicroHack, please familiarize yourself with routing in Azure by reviewing the documentations inthe follow links.
 
-## Context
+# Objectives
 
-TBD
+After completing this MicroHack you will:
+
+- Know how to build a hub-and-spoke topology in Azure
+- Understand routing with the hub-and-spoke architecture
+- Understand how custom routing works and know how to build some custom routing scenarios
+
+# Lab
+
+The lab consists of a Hub and Spoke in the region you choose and a simulated On-premise location in same region.
+Each of the Spoke and On-prem VNETs contains a Virtual Machine running a basic web site. The hub VNET contains an Active Directory Domain Controller.
+During the course of the MicroHack you will connect the Spoke and Hub VNETs and the On-premise site, deploy an additional spokes, and manipulate and observe routing.
+At the end of the lab your deployment looks like this
+
 
 # Pre-requisites
 
@@ -87,8 +102,41 @@ Password: {as per above step}
 
 # Challenge 1: Understand vNet peering, UDR and NSG 
 
-## Task : Apply NSG on spoke Virtual Network
+You need to deploy a new application built on traditional Virtual Machine, it needs to be deploys in it's own spoke vnet.
 ## Task : Deploy a new spoke Virtual Network
+
+Azure Virtual Network (VNet) is the fundamental building block for your private network in Azure. VNet enables many types of Azure resources, such as Azure Virtual Machines (VM), to securely communicate with each other, the internet, and on-premises networks. VNet is similar to a traditional network that you'd operate in your own data center, but brings with it additional benefits of Azure's infrastructure such as scale, availability, and isolation.
+
+In this task you need to the vnet, that can be done by clicking in the portal or run the following script in cloud shell.
+
+- create a new spoke nvet with a subnet .
+
+`az network vnet create -g hub-spoke-microhack-rg -n spoke2-vnet --address-prefix 10.2.0.0/16 --subnet-name InfrastructureSubnet --subnet-prefix 10.2.0.0/24`
+
+- Then we need to peer the the newly created with the hub vnet. that is done in two step first fron spoke the secound from hub.  
+
+`az network vnet peering create -g hub-spoke-microhack-rg  -n spoke2-hub-peer --vnet-name spoke2-vnet --remote-vnet hub-vnet --allow-vnet-access  --use-remote-gateways`
+`az network vnet peering create -g hub-spoke-microhack-rg  -n hub-spoke-peer --vnet-name hub-vnet --remote-vnet spoke2-vnet --allow-vnet-access --allow-forwarded-traffic --allow-gateway-transit`
+
+- Create a VM in the new subnet/Virtual Network.
+
+
+`az network nic create --resource-group hub-spoke-microhack-rg --name az-srv2-nic --subnet InfrastructureSubnet --private-ip-address 10.2.0.4 --vnet-name spoke2-vnet`
+`az vm create  --resource-group hub-spoke-microhack-rg --name az-srv2-vm --image win2016datacenter --nics az-srv2-nic --admin-username AzureAdmin`
+
+
+## Task : Secure access with Network Security Groups
+
+In Azure you can use an Azure network security group (NSG) to filter network traffic to and from Azure resources in an Azure virtual network. A network security group contains security rules that allow or deny inbound network traffic to, or outbound network traffic from, several types of Azure resources. For each rule, you can specify source and destination, port, and protocol.
+A network security group can be associated on a subnet or on NIC on virtual machine.
+More info about how it works [Network security group - how it works](https://docs.microsoft.com/en-us/azure/virtual-network/network-security-group-how-it-works)
+
+In this task we need to block traffic to az-srv-vm' subnet on port 80 from all other subnets in Azure, but Allow traffic from onprem.
+
+First we need to create an NSG and associate it to subnet ServerSubnet in spoke-vnet where the VM .
+
+
+
 
 ## Task : Deploy a new Virtual Machine inside the spoke Virtual Network
 
