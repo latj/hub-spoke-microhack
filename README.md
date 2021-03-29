@@ -111,19 +111,25 @@ In this task you need to the vnet, that can be done by clicking in the portal or
 
 - create a new spoke nvet with a subnet .
 
-`az network vnet create -g hub-spoke-microhack-rg -n spoke2-vnet --address-prefix 10.2.0.0/16 --subnet-name InfrastructureSubnet --subnet-prefix 10.2.0.0/24`
+````PoweerShell
+az network vnet create -g hub-spoke-microhack-rg -n spoke2-vnet --address-prefix 10.2.0.0/16 --subnet-name InfrastructureSubnet --subnet-prefix 10.2.0.0/24
+````
 
 - Then we need to peer the the newly created with the hub vnet. that is done in two step first fron spoke the secound from hub.  
 
-`az network vnet peering create -g hub-spoke-microhack-rg  -n spoke2-hub-peer --vnet-name spoke2-vnet --remote-vnet hub-vnet --allow-vnet-access  --use-remote-gateways`
-`az network vnet peering create -g hub-spoke-microhack-rg  -n hub-spoke-peer --vnet-name hub-vnet --remote-vnet spoke2-vnet --allow-vnet-access --allow-forwarded-traffic --allow-gateway-transit`
+````PoweerShell
+    # Creates peering between vnets
+    az network vnet peering create -g hub-spoke-microhack-rg  -n spoke2-hub-peer --vnet-name spoke2-vnet --remote-vnet hub-vnet --allow-vnet-access  --use-remote-gateways
+    az network vnet peering create -g hub-spoke-microhack-rg  -n hub-spoke-peer --vnet-name hub-vnet --remote-vnet spoke2-vnet --allow-vnet-access --allow-forwarded-traffic --allow-gateway-transit
+````
 
 - Create a VM in the new subnet/Virtual Network.
 
 
-`az network nic create --resource-group hub-spoke-microhack-rg --name az-srv2-nic --subnet InfrastructureSubnet --private-ip-address 10.2.0.4 --vnet-name spoke2-vnet`
-`az vm create  --resource-group hub-spoke-microhack-rg --name az-srv2-vm --image win2016datacenter --nics az-srv2-nic --admin-username AzureAdmin`
-
+````PoweerShell
+    az network nic create --resource-group hub-spoke-microhack-rg --name az-srv2-nic --subnet InfrastructureSubnet --private-ip-address 10.2.0.4 --vnet-name spoke2-vnet
+    az vm create  --resource-group hub-spoke-microhack-rg --name az-srv2-vm --image win2016datacenter --nics az-srv2-nic --admin-username AzureAdmin
+````
 
 ## Task : Secure access with Network Security Groups
 
