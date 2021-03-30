@@ -103,6 +103,36 @@ Password: {as per above step}
 # Challenge 1: Understand vNet peering, UDR and NSG 
 
 You need to deploy a new application built on traditional Virtual Machine, it needs to be deploys in it's own spoke vnet.
+
+## Task 1 : Control network access to VM with Network Security Groups
+
+In Azure you can use an Azure network security group (NSG) to filter network traffic to and from Azure resources in an Azure virtual network. A network security group contains security rules that allow or deny inbound network traffic to, or outbound network traffic from, several types of Azure resources. For each rule, you can specify source and destination, port, and protocol.
+A network security group can be associated on a subnet or on NIC on virtual machine.
+More info about how it works [Network security group - how it works](https://docs.microsoft.com/en-us/azure/virtual-network/network-security-group-how-it-works)
+
+In this task we need to block traffic to az-srv-vm' subnet on port 80 from all other subnets in Azure, but only Allow traffic from onprem.
+
+- First we create a an network security group (NSG).
+
+````Bash
+az network nsg create -g "hub-spoke-microhack-rg" --name spoke-vnet-srv-nsg
+````
+
+- Create inbouond rule in NSG
+
+````Bash
+az network nsg rule create -g "hub-spoke-microhack-rg" --nsg-name spoke-vnet-srv-nsg -n Block_HTTP --priority 4096 --source-address-prefixes "10.0.0.0/16" --source-port-ranges '*' --destination-address-prefixes "10.1.1.0/24" --destination-port-ranges '80' --access Deny --protocol Tcp --description "Deny from Azure Subnet IP address ranges on 80."
+
+````
+
+- Assign NSG to the subnet of the *az-srv-vm*.
+
+````Bash
+az network vnet subnet update -g "hub-spoke-microhack-rg"  -n "ServerSubnet" --vnet-name spoke-vnet --network-security-group spoke-vnet-srv-nsg
+````
+
+## Task 1 : Control network access from VM with Network Security Groups
+
 ## Task : Deploy a new spoke Virtual Network
 
 Azure Virtual Network (VNet) is the fundamental building block for your private network in Azure. VNet enables many types of Azure resources, such as Azure Virtual Machines (VM), to securely communicate with each other, the internet, and on-premises networks. VNet is similar to a traditional network that you'd operate in your own data center, but brings with it additional benefits of Azure's infrastructure such as scale, availability, and isolation.
@@ -111,13 +141,13 @@ In this task you need to the vnet, that can be done by clicking in the portal or
 
 - create a new spoke nvet with a subnet .
 
-````PoweerShell
+````Bash
 az network vnet create -g hub-spoke-microhack-rg -n spoke2-vnet --address-prefix 10.2.0.0/16 --subnet-name InfrastructureSubnet --subnet-prefix 10.2.0.0/24
 ````
 
 - Then we need to peer the the newly created with the hub vnet. that is done in two step first fron spoke the secound from hub.  
 
-````PoweerShell
+````Bash
     # Creates peering between vnets
     az network vnet peering create -g hub-spoke-microhack-rg  -n spoke2-hub-peer --vnet-name spoke2-vnet --remote-vnet hub-vnet --allow-vnet-access  --use-remote-gateways
     az network vnet peering create -g hub-spoke-microhack-rg  -n hub-spoke-peer --vnet-name hub-vnet --remote-vnet spoke2-vnet --allow-vnet-access --allow-forwarded-traffic --allow-gateway-transit
@@ -126,20 +156,13 @@ az network vnet create -g hub-spoke-microhack-rg -n spoke2-vnet --address-prefix
 - Create a VM in the new subnet/Virtual Network.
 
 
-````PoweerShell
+````Bash
     az network nic create --resource-group hub-spoke-microhack-rg --name az-srv2-nic --subnet InfrastructureSubnet --private-ip-address 10.2.0.4 --vnet-name spoke2-vnet
-    az vm create  --resource-group hub-spoke-microhack-rg --name az-srv2-vm --image win2016datacenter --nics az-srv2-nic --admin-username AzureAdmin
+    az vm create  --resource-group hub-spoke-microhack-rg --name az-srv2-vm --image win2019datacenter --nics az-srv2-nic --admin-username AzureAdmin
 ````
 
-## Task : Secure access with Network Security Groups
+- Verify that your can access the new VM as expected. The easiest way to do this is as follows; Once you have Azure Bastion access to the desktop of *az-dns-vm*, launch remote desktop (mstsc), and attempt a connection to *az-srv2-vm* (IP address 10.2.0.4). You should recieve the login prompt.
 
-In Azure you can use an Azure network security group (NSG) to filter network traffic to and from Azure resources in an Azure virtual network. A network security group contains security rules that allow or deny inbound network traffic to, or outbound network traffic from, several types of Azure resources. For each rule, you can specify source and destination, port, and protocol.
-A network security group can be associated on a subnet or on NIC on virtual machine.
-More info about how it works [Network security group - how it works](https://docs.microsoft.com/en-us/azure/virtual-network/network-security-group-how-it-works)
-
-In this task we need to block traffic to az-srv-vm' subnet on port 80 from all other subnets in Azure, but Allow traffic from onprem.
-
-First we need to create an NSG and associate it to subnet ServerSubnet in spoke-vnet where the VM .
 
 
 
