@@ -131,10 +131,7 @@ az network vnet subnet update -g "hub-spoke-microhack-rg"  -n "ServerSubnet" --v
 
 # Challenge 1: Understand routing and vNet peering 
 
-In this challenge we will work with routing and how that is working in peered Virtual Network. to widening the scope a bit, and add one more spoke network. 
- 
-
-
+In this challenge we will work with routing and peered Virtual Network. we start by adding one more spoke virtual network. 
 
 ## Task : Deploy a new spoke Virtual Network
 
@@ -142,7 +139,7 @@ Azure Virtual Network (VNet) is the fundamental building block for your private 
 
 In this task you need to the vnet, that can be done by clicking in the portal or run the following script in cloud shell.
 
-- create a new spoke nvet with a subnet .
+- Create a new spoke nvet with a subnet .
 
 ````Bash
 az network vnet create -g hub-spoke-microhack -n vnet-spoke2 --address-prefix 10.200.0.0/16 --subnet-name snet-spoke-resources --subnet-prefix 10.200.0.0/24
@@ -171,13 +168,15 @@ az network vnet create -g hub-spoke-microhack -n vnet-spoke2 --address-prefix 10
 We will check the routing configuration of the first webserver in the spoke netwotk *vm-web-server0*, that can be done by using the commands CLI below or using the portal.
 
 
-- show the routing for vm *vm-web-server0* by specifiying the nic *nic-web-server0*.
+- Show the routing for vm *vm-web-server0* by specifiying the nic *nic-web-server0*.
 
 ````Bash
     az network nic show-effective-route-table -g "hub-spoke-microhack" -n "nic-web-server0" --output table
 ````
 
 ### :point_right: The result will show the following.
+
+![image](images/effectiveroute.png)
 
 - 1st route shows the addressprefix of the *vnet-spoke* nexthop VirtualNetwork named VNetLocal in CLI
 - 2nd route shows the addressprefix of the peered vnet, with nexthop VNet peering
