@@ -178,11 +178,16 @@ We will check the routing configuration of the first webserver in the spoke netw
 
 ![image](images/effectiveroute.png)
 
-> 1st route shows the addressprefix of the *vnet-spoke* nexthop VirtualNetwork named VNetLocal in CLI
-> 2nd route shows the addressprefix of the peered vnet, with nexthop VNet peering
-> 3rd route shows the addressprefix of the onprem, with nexthop VirtualNetworkGateway
-> 4th route shows the 0.0.0.0/0, with nexthop Internet
-> The rest show addressprefixes that will be droped
+> - 1st route shows the addressprefix of the *vnet-spoke* nexthop VirtualNetwork named VNetLocal in CLI
+
+> - 2nd route shows the addressprefix of the peered vnet, with nexthop VNet peering
+
+> - 3rd route shows the addressprefix of the onprem, with nexthop VirtualNetworkGateway
+
+> - 4th route shows the 0.0.0.0/0, with nexthop Internet
+
+> - The rest show addressprefixes that will be droped
+
 
 ### :point_right: In this senario all traffic to internet will breakout directly in the virtual network.
 
