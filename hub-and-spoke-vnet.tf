@@ -423,3 +423,26 @@ resource "azurerm_virtual_network_peering" "spoke-hub-peer" {
   use_remote_gateways          = true
   depends_on                   = [azurerm_virtual_network.spoke-vnet, azurerm_virtual_network.hub-vnet, azurerm_virtual_network_gateway.hub-vnet-gateway]
 }
+
+
+#########################################################
+# Log Analytics workspace
+#########################################################  
+resource "random_string" "random" {
+  length = 16
+  special = false
+  
+}
+resource "azurerm_log_analytics_workspace" "hub-spoke-wksp" {
+  name                = join("",["hub-spoke-wksp-", random_string.random.result])
+  location            = azurerm_resource_group.internet-outbound-microhack-rg.location
+  resource_group_name = azurerm_resource_group.internet-outbound-microhack-rg.name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+
+  tags = {
+    environment = "hub-spoke"
+    deployment  = "terraform"
+    microhack   = "hub-spoke"
+  }
+}
