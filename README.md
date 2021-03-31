@@ -22,6 +22,9 @@ It is therefore important to understand how hub-spoke enables connectivity withi
 The lab starts with a single Hub with Spoke VNETs and default routing. We then connect a simulated on-premise location via S2S VPN. 
 Prior to starting this MicroHack, please familiarize yourself with routing in Azure by reviewing the documentations inthe follow links.
 
+[Implement a secure hybrid network](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/dmz/secure-vnet-dmz?tabs=portal)
+[Hub-spoke network topology in Azure](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke?tabs=cli)
+
 # Objectives
 
 After completing this MicroHack you will:
@@ -29,6 +32,7 @@ After completing this MicroHack you will:
 - Know how to build a hub-and-spoke topology in Azure
 - Understand routing with the hub-and-spoke architecture
 - Understand how custom routing works and know how to build some custom routing scenarios
+- Understand how to user Azure Firewall in hub-and-spoke topology
 
 # Lab
 
@@ -74,7 +78,7 @@ To start the terraform deployment, follow the steps listed below:
 
 `git clone https://github.com/latj/hub-spoke-microhack`
 
-- Go to the new folder hub-spoke-microhack and initialize the terraform modules and download the azurerm resource provider
+- Go to the new folder hub-spoke-microhack and start the deployment 
 
 `terraform init`
 
