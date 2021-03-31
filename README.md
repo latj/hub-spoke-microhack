@@ -178,11 +178,15 @@ We will check the routing configuration of the first webserver in the spoke netw
 
 ![image](images/effectiveroute.png)
 
-- 1st route shows the addressprefix of the *vnet-spoke* nexthop VirtualNetwork named VNetLocal in CLI
-- 2nd route shows the addressprefix of the peered vnet, with nexthop VNet peering
-- 3rd route shows the addressprefix of the onprem, with nexthop VirtualNetworkGateway
-- 4th route shows the 0.0.0.0/0, with nexthop Internet
-- the rest show addressprefixes that will be droped, you can read more about routing in Azure [here](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview#default)
+> 1st route shows the addressprefix of the *vnet-spoke* nexthop VirtualNetwork named VNetLocal in CLI
+> 2nd route shows the addressprefix of the peered vnet, with nexthop VNet peering
+> 3rd route shows the addressprefix of the onprem, with nexthop VirtualNetworkGateway
+> 4th route shows the 0.0.0.0/0, with nexthop Internet
+> The rest show addressprefixes that will be droped
+
+### :point_right: In this senario all traffic to internet will breakout directly in the virtual network.
+
+You can read more about routing in Azure [here](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview#default)
 
 
 - Now check the routing for  *vm-mgmt-server* by specifiying the nic *nic-mgmt-server*.
@@ -200,9 +204,13 @@ We will check the routing configuration of the first webserver in the spoke netw
 - Peering connections are non-transitive, low latency connections between virtual networks. Once peered, the virtual networks exchange traffic by using the Azure backbone without the need for a router.
 More infomation [Virtual Network Peering](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview#connectivity)
 
+
+
+
+
 # Challenge 2: Route internet traffic through Azure Firewall
 
-In this challenge you will explore how we can send all traffic through a Firewall, instead of go direct to Internet. You will build a secure hub in Azure. Routing all traffic directly to the Azure Firewall.
+In this challenge you will explore how we can make our spoke communicate by sending all traffic through a Firewall, instead of go direct to Internet. You will build a secure hub in Azure. Routing all traffic directly to the Azure Firewall.
 
 ![image](images/hub-spoke-azfw.png)
 
