@@ -144,7 +144,7 @@ In this task you need to the vnet, that can be done by clicking in the portal or
 - create a new spoke nvet with a subnet .
 
 ````Bash
-az network vnet create -g hub-spoke-microhack-rg -n spoke2-vnet --address-prefix 10.2.0.0/16 --subnet-name InfrastructureSubnet --subnet-prefix 10.2.0.0/24
+az network vnet create -g hub-spoke-microhack-rg -n spoke2-vnet --address-prefix 10.200.0.0/16 --subnet-name InfrastructureSubnet --subnet-prefix 10.200.0.0/24
 ````
 
 - Then we need to peer the the newly created with the hub vnet. that is done in two step first fron spoke the secound from hub.  
@@ -159,8 +159,8 @@ az network vnet create -g hub-spoke-microhack-rg -n spoke2-vnet --address-prefix
 
 
 ````Bash
-    az network nic create --resource-group hub-spoke-microhack-rg --name az-srv2-nic --subnet InfrastructureSubnet --private-ip-address 10.200.0.4 --vnet-name spoke2-vnet
-    az vm create  --resource-group hub-spoke-microhack-rg --name az-srv2-vm --image win2019datacenter --nics az-srv2-nic --admin-username AzureAdmin
+    az network nic create --resource-group hub-spoke-microhack-rg --name nic-mgmt-server --subnet InfrastructureSubnet --private-ip-address 10.200.0.4 --vnet-name spoke2-vnet
+    az vm create  --resource-group hub-spoke-microhack-rg --name vm-mgmt-server --image win2019datacenter --nics nic-mgmt-server --admin-username AzureAdmin
 ````
 
 - Verify that your can access the new VM as expected. The easiest way to do this is as follows; Once you have Azure Bastion access to the desktop of *az-dns-vm*, launch remote desktop (mstsc), and attempt a connection to *az-srv2-vm* (IP address 10.200.0.4). You should recieve the login prompt.
