@@ -80,17 +80,11 @@ To start the terraform deployment, follow the steps listed below:
 
 - Go to the new folder hub-spoke-microhack and start the deployment 
 
-`terraform init`
-
-- Now run apply to start the deployment (When prompted, confirm with a **yes** to start the deployment)
-
-`terraform apply`
-
-- Choose you region for deployment (location). E.g. eastus, westeurope, etc
+`az deployment sub create     --template-uri https://raw.githubusercontent.com/latj/hub-spoke-microhack/master/azuredeploy.json --location eastus`
 
 - Choose a suitable password to be used for your Virtual Machines administrator account (username: AzureAdmin)
 
-- Wait for the deployment to complete. This will take around 30 minutes (the VPN gateways take a while).
+- Wait for the deployment to complete. This will take around 45 minutes (the VPN gateways take a while).
 
 ## Task 2 : Explore and verify the deployed resources
 
@@ -104,9 +98,9 @@ Password: {as per above step}
 
 
 
-# Challenge 1: Understand vNet peering, UDR and NSG 
+# Challenge 1: Understand Network Ssecurity Groups 
 
-You need to deploy a new application built on traditional Virtual Machine, it needs to be deploys in it's own spoke vnet.
+In the spoke vnet it is deployed a loadbalance and two VMs as backend pool. in this challange we will enable Network Security Groups (NSG) to filter the traffic 
 
 ## Task 1 : Control network access to VM with Network Security Groups
 
@@ -114,18 +108,18 @@ In Azure you can use an Azure network security group (NSG) to filter network tra
 A network security group can be associated on a subnet or on NIC on virtual machine.
 More info about how it works [Network security group - how it works](https://docs.microsoft.com/en-us/azure/virtual-network/network-security-group-how-it-works)
 
-In this task we need to block traffic to az-srv-vm' subnet on port 80 from all other subnets in Azure, but only Allow traffic from onprem.
+In this task we need to block traffic to the VMs in the spoke subnet on port 80 from all other subnets in Azure and OnPrem, but Allow HTTP(80) traffic to the loadbalancer.
 
-- First we create a an network security group (NSG).
+- that is allready exist an NSG that you can used .
 
 ````Bash
-az network nsg create -g "hub-spoke-microhack-rg" --name spoke-vnet-srv-nsg
+az network nsg show -g "hub-spoke-microhack" -n "nsg-spoke-resources"
 ````
 
 - Create inbouond rule in NSG
 
 ````Bash
-az network nsg rule create -g "hub-spoke-microhack-rg" --nsg-name spoke-vnet-srv-nsg -n Block_HTTP --priority 4096 --source-address-prefixes "10.0.0.0/16" --source-port-ranges '*' --destination-address-prefixes "10.1.1.0/24" --destination-port-ranges '80' --access Deny --protocol Tcp --description "Deny from Azure Subnet IP address ranges on 80."
+az network nsg rule create -g "hub-spoke-microhack" --nsg-name nsg-spoke-resources -n Allow_LB_HTTP --priority 4010 --source-address-prefixes "*" --source-port-ranges '*' --destination-address-prefixes "10.100.4.0" --destination-port-ranges '80' --access Allow --protocol Tcp --description "Deny from Azure Subnet IP address ranges on 80."
 
 ````
 
@@ -135,7 +129,11 @@ az network nsg rule create -g "hub-spoke-microhack-rg" --nsg-name spoke-vnet-srv
 az network vnet subnet update -g "hub-spoke-microhack-rg"  -n "ServerSubnet" --vnet-name spoke-vnet --network-security-group spoke-vnet-srv-nsg
 ````
 
-## Task 1 : Control network access from VM with Network Security Groups
+# Challenge 1: Understand routing and vNet peering 
+
+In this challenge we will work with routing and how that is working in peered Virtual Network. to widening the scope a bit, and add one more spoke network. 
+ 
+
 
 ## Task : Deploy a new spoke Virtual Network
 
@@ -161,17 +159,24 @@ az network vnet create -g hub-spoke-microhack-rg -n spoke2-vnet --address-prefix
 
 
 ````Bash
-    az network nic create --resource-group hub-spoke-microhack-rg --name az-srv2-nic --subnet InfrastructureSubnet --private-ip-address 10.2.0.4 --vnet-name spoke2-vnet
+    az network nic create --resource-group hub-spoke-microhack-rg --name az-srv2-nic --subnet InfrastructureSubnet --private-ip-address 10.200.0.4 --vnet-name spoke2-vnet
     az vm create  --resource-group hub-spoke-microhack-rg --name az-srv2-vm --image win2019datacenter --nics az-srv2-nic --admin-username AzureAdmin
 ````
 
-- Verify that your can access the new VM as expected. The easiest way to do this is as follows; Once you have Azure Bastion access to the desktop of *az-dns-vm*, launch remote desktop (mstsc), and attempt a connection to *az-srv2-vm* (IP address 10.2.0.4). You should recieve the login prompt.
+- Verify that your can access the new VM as expected. The easiest way to do this is as follows; Once you have Azure Bastion access to the desktop of *az-dns-vm*, launch remote desktop (mstsc), and attempt a connection to *az-srv2-vm* (IP address 10.200.0.4). You should recieve the login prompt.
 
 
+## Task : Check the routing for a Virtual Machine
+
+We will start and check the routing configuration, that can be done by using the commands below or using the portal.
 
 
+- Check the routing for .
 
-## Task : Deploy a new Virtual Machine inside the spoke Virtual Network
+````Bash
+    az network nic show-effective-route-table -g "hub-spoke-microhack" -n "vm-windows-0" --output table
+````
+
 
 
 # Challenge 2: Route internet traffic through Azure Firewall
