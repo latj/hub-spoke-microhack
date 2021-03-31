@@ -135,6 +135,7 @@ In this challenge we will work with routing and how that is working in peered Vi
  
 
 
+
 ## Task : Deploy a new spoke Virtual Network
 
 Azure Virtual Network (VNet) is the fundamental building block for your private network in Azure. VNet enables many types of Azure resources, such as Azure Virtual Machines (VM), to securely communicate with each other, the internet, and on-premises networks. VNet is similar to a traditional network that you'd operate in your own data center, but brings with it additional benefits of Azure's infrastructure such as scale, availability, and isolation.
@@ -144,40 +145,61 @@ In this task you need to the vnet, that can be done by clicking in the portal or
 - create a new spoke nvet with a subnet .
 
 ````Bash
-az network vnet create -g hub-spoke-microhack-rg -n spoke2-vnet --address-prefix 10.200.0.0/16 --subnet-name InfrastructureSubnet --subnet-prefix 10.200.0.0/24
+az network vnet create -g hub-spoke-microhack -n vnet-spoke2 --address-prefix 10.200.0.0/16 --subnet-name snet-spoke-resources --subnet-prefix 10.200.0.0/24
 ````
 
 - Then we need to peer the the newly created with the hub vnet. that is done in two step first fron spoke the secound from hub.  
 
 ````Bash
     # Creates peering between vnets
-    az network vnet peering create -g hub-spoke-microhack-rg  -n spoke2-hub-peer --vnet-name spoke2-vnet --remote-vnet hub-vnet --allow-vnet-access  --use-remote-gateways
-    az network vnet peering create -g hub-spoke-microhack-rg  -n hub-spoke-peer --vnet-name hub-vnet --remote-vnet spoke2-vnet --allow-vnet-access --allow-forwarded-traffic --allow-gateway-transit
+    az network vnet peering create -g hub-spoke-microhack  -n spoke2-hub-peer --vnet-name vnet-spoke2 --remote-vnet vnet-hub --allow-vnet-access  --use-remote-gateways
+    az network vnet peering create -g hub-spoke-microhack  -n hub-spoke-peer --vnet-name vnet-hub --remote-vnet vnet-spoke2 --allow-vnet-access --allow-forwarded-traffic --allow-gateway-transit
 ````
 
 - Create a VM in the new subnet/Virtual Network.
 
 
 ````Bash
-    az network nic create --resource-group hub-spoke-microhack-rg --name nic-mgmt-server --subnet InfrastructureSubnet --private-ip-address 10.200.0.4 --vnet-name spoke2-vnet
-    az vm create  --resource-group hub-spoke-microhack-rg --name vm-mgmt-server --image win2019datacenter --nics nic-mgmt-server --admin-username AzureAdmin
+    az network nic create --resource-group hub-spoke-microhack --name nic-mgmt-server --subnet snet-spoke-resources --private-ip-address 10.200.0.4 --vnet-name vnet-spoke2
+    az vm create  --resource-group hub-spoke-microhack --name vm-mgmt-server --image win2019datacenter --nics nic-mgmt-server --admin-username AzureAdmin
 ````
 
 - Verify that your can access the new VM as expected. The easiest way to do this is as follows; Once you have Azure Bastion access to the desktop of *az-dns-vm*, launch remote desktop (mstsc), and attempt a connection to *az-srv2-vm* (IP address 10.200.0.4). You should recieve the login prompt.
 
+## Task : Check the routing for Virtual Machines
 
-## Task : Check the routing for a Virtual Machine
-
-We will start and check the routing configuration, that can be done by using the commands below or using the portal.
+We will check the routing configuration of the first webserver in the spoke netwotk *vm-web-server0*, that can be done by using the commands CLI below or using the portal.
 
 
-- Check the routing for .
+- show the routing for vm *vm-web-server0* by specifiying the nic *nic-web-server0*.
 
 ````Bash
-    az network nic show-effective-route-table -g "hub-spoke-microhack" -n "vm-windows-0" --output table
+    az network nic show-effective-route-table -g "hub-spoke-microhack" -n "nic-web-server0" --output table
 ````
 
+### :point_right: The result will show the following.
 
+- 1st route shows the addressprefix of the *vnet-spoke* nexthop VirtualNetwork named VNetLocal in CLI
+- 2nd route shows the addressprefix of the peered vnet, with nexthop VNet peering
+- 3rd route shows the addressprefix of the onprem, with nexthop VirtualNetworkGateway
+- 4th route shows the 0.0.0.0/0, with nexthop Internet
+- the rest show addressprefixes that will be droped, you can read more about routing in Azure [here](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview#default)
+
+
+- Now check the routing for  *vm-mgmt-server* by specifiying the nic *nic-mgmt-server*.
+
+````Bash
+    az network nic show-effective-route-table -g "hub-spoke-microhack" -n "nic-mgmt-server" --output table
+````
+
+### :point_right: Compare then ae that any differernces
+
+:question: Will *vm-web-server0* and *vm-mgmt-server* be able to communicate?
+
+:question: Why can't they communicate?
+
+- Peering connections are non-transitive, low latency connections between virtual networks. Once peered, the virtual networks exchange traffic by using the Azure backbone without the need for a router.
+More infomation [Virtual Network Peering](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview#connectivity)
 
 # Challenge 2: Route internet traffic through Azure Firewall
 
