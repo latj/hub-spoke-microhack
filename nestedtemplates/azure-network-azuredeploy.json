@@ -833,6 +833,20 @@
             }
         },
         {
+            "comments": "Route associated with spoke / resources subnet, any address, through Azure firewall",
+            "type": "Microsoft.Network/routeTables/routes",
+            "apiVersion": "2020-07-01",
+            "name": "[concat(parameters('spokeRoutes').tableName, '/', parameters('spokeRoutes').routeNameFirewall)]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/routeTables', parameters('spokeRoutes').tableName)]"
+            ],
+            "properties": {
+                "addressPrefix": "0.0.0.0/0",
+                "nextHopType": "VirtualAppliance",
+                "nextHopIpAddress": "[reference(resourceId('Microsoft.Network/azureFirewalls', parameters('azureFirewall').name), '2020-05-01').ipConfigurations[0].properties.privateIpAddress]"
+            }
+        },
+        {
             "comments": "Route / force tunnel from spokes to Azure firewall",
             "type": "Microsoft.Network/routeTables",
             "apiVersion": "2020-05-01",

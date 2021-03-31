@@ -215,7 +215,7 @@ More infomation [Virtual Network Peering](https://docs.microsoft.com/en-us/azure
 
 # Challenge 2: Route internet traffic through Azure Firewall
 
-In this challenge you will explore how we can make our spoke communicate by sending all traffic through a Firewall, instead of go direct to Internet. You will route all traffic directly to the Azure Firewall. the Firewall is allready buildt.
+In this challenge you will explore how we can make our spokes communicate by sending all traffic through a Firewall, instead of go direct to Internet. You will route all traffic directly to the Azure Firewall. the Firewall is allready buildt.
 
 ![image](images/hub-spoke-azfw.png)
 
@@ -235,7 +235,9 @@ Find the Route Table "spoke-route" and modify the next hop of the default route 
 
 ![image](images/default-via-azfw.png)
 
-Verify that you no longer have connectivity to the internet from the az-mgmt-vm. Connections are now being routed to Azure Firewall, which is running with the default "deny all" policy.
+Verify if you still have connectivity to the internet from the *vm-mgmt-server*. Connections are now being routed to Azure Firewall, which is running with the default "deny all" policy.
+
+
 
 ## Task 3: Implement policy with Azure Firewall rules to connect to on-premixes
 
