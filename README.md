@@ -215,19 +215,14 @@ More infomation [Virtual Network Peering](https://docs.microsoft.com/en-us/azure
 
 # Challenge 2: Route internet traffic through Azure Firewall
 
-In this challenge you will explore how we can make our spoke communicate by sending all traffic through a Firewall, instead of go direct to Internet. You will build a secure hub in Azure. Routing all traffic directly to the Azure Firewall.
+In this challenge you will explore how we can make our spoke communicate by sending all traffic through a Firewall, instead of go direct to Internet. You will route all traffic directly to the Azure Firewall. the Firewall is allready buildt.
 
 ![image](images/hub-spoke-azfw.png)
 
-## Task 1: Deploy Azure Firewall
+## Task 1: Check the deployment of Azure Firewall
 
-In the Azure Portal, deploy a new Azure Firewall instance in the hub-vnet. A subnet named "AzureFirewallSubnet" has been already created for you. 
+In the Azure Portal, you see a AzureFirewall resource in the *vnet-hub*. A subnet named "AzureFirewallSubnet" must exist to deploy Azure Firewall. 
 
-![image](images/firewall.png)
-
-> Please note that the "Forced tunneling" switch must be disabled. The switch allows forwarding internet traffic to custom next hops (including gateways connected to remote networks) after it has been inspected by Azure Firewall. In this scenario, you are using Azure Firewall as your secure internet edge and want your internet traffic to egress to the internet directly, after being inspected by Azure Firewall.
-
-Your Azure Firewall instance will take about 10 minutes to deploy. When the deployment completes, go to the new firewall's overview tile a take note of its *private* IP address. 
 
 ## Task 2: Configure a default route via azure Firewall
 
@@ -235,7 +230,8 @@ In the Azure portal, go to your Azure Firewall instance's "Overview" and take no
 
 ![image](images/firewall-overview.png)
 
-Go to the Route Table "spoke-vnet-rt" and modify the next hop of the default route that you defined in the previous challenge. To do so, click on “Routes” on the menu on the left, find the custom default route that you defined in the previous challenge and click on it. Replace the next hop "Virtual Network Gateway" with the private IP of your Azure firewall instance. 
+
+Find the Route Table "spoke-route" and modify the next hop of the default route that you defined in the previous challenge. To do so, click on “Routes” on the menu on the left, find the custom default route that you defined in the previous challenge and click on it. Replace the next hop "Virtual Network Gateway" with the private IP of your Azure firewall instance. 
 
 ![image](images/default-via-azfw.png)
 
