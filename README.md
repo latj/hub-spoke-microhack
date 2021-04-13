@@ -2,17 +2,10 @@
 
 # Contents
 
-[MicroHack introduction and context](#Introduction)
-
+[MicroHack introduction](#Introduction)
 [Pre-requisites](#Pre-requisites)
 
-[Challenge 1 : Working with user defiend route UDR and Network Security Group NSG](#Challenge-1:-Working-with-user-defiend-route-UDR-and-Network-Security-Group-NSG)
 
-[Challenge 3 : Route internet traffic through Azure Firewall](#Challenge-2:-Route-internet-traffic-through-Azure-Firewall)
-
-[Challenge 3: Control network with Aziure Policies](#Challenge-3:-Control-network-with-Azure-Policies)
-
-[Challenge 3: Monitoring](#Challenge-4:-Monitoring)
 
 
 # Introduction
@@ -25,7 +18,7 @@ Prior to starting this MicroHack, please familiarize yourself with routing in Az
 [Implement a secure hybrid network](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/dmz/secure-vnet-dmz?tabs=portal)
 [Hub-spoke network topology in Azure](https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke?tabs=cli)
 
-# Objectives
+## Objectives
 
 After completing this MicroHack you will:
 
@@ -34,7 +27,7 @@ After completing this MicroHack you will:
 - Understand how custom routing works and know how to build some custom routing scenarios
 - Understand how to user Azure Firewall in hub-and-spoke topology
 
-# Lab
+## Lab
 
 The lab consists of a Hub and Spoke in the region you choose and a simulated On-premise location in same region.
 Each of the Spoke and On-prem VNETs contains a Virtual Machine. The hub VNET contains an VPN Gateway and Azure Firewall.
@@ -97,9 +90,9 @@ Password: {as per above step}
 
 
 
-# Challenge 1: Understand Network Ssecurity Groups 
+# Challenge 1: Understand Network Security Groups 
 
-In the spoke vnet it is deployed a loadbalance and two VMs as backend pool. in this challange we will enable Network Security Groups (NSG) to filter the traffic 
+In the spoke vnet it is deployed a loadbalance and two VMs as backend pool. in this challange we will enable Network Security Groups (NSG) to filter the incomming traffic 
 
 ## Task 1 : Control network access to VM with Network Security Groups
 
@@ -115,10 +108,17 @@ In this task we need to block traffic to the VMs in the spoke subnet on port 80 
 az network nsg show -g "hub-spoke-microhack" -n "nsg-spoke-resources"
 ````
 
-- Create inbouond rule in NSG
+- Create new inbouond rule allowing port 80 from onprem
 
 ````Bash
-az network nsg rule create -g "hub-spoke-microhack" --nsg-name nsg-spoke-resources -n Allow_LB_HTTP --priority 4010 --source-address-prefixes "*" --source-port-ranges '*' --destination-address-prefixes "10.100.4.0" --destination-port-ranges '80' --access Allow --protocol Tcp --description "Deny from Azure Subnet IP address ranges on 80."
+az network nsg rule create -g "hub-spoke-microhack" --nsg-name nsg-spoke-resources -n allow-http-traffic-from-onprem --priority 1100 --source-address-prefixes "192.168.0.0/16" --source-port-ranges '*' --destination-address-prefixes "VirtualNetwork" --destination-port-ranges '80' --access Allow --protocol '*' --description "Allow onprem subnet traffic on port 80"
+
+````
+
+- Create new inbouond rule denying all traffic from onprem
+
+````Bash
+az network nsg rule create -g "hub-spoke-microhack" --nsg-name nsg-spoke-resources -n deny-all-traffic-from-onprem --priority 1110 --source-address-prefixes "192.168.0.0/16" --source-port-ranges '*' --destination-address-prefixes "VirtualNetwork" --destination-port-ranges '*' --access Allow --protocol '*' --description "Deny onprem subnet traffic"
 
 ````
 
@@ -128,15 +128,16 @@ az network nsg rule create -g "hub-spoke-microhack" --nsg-name nsg-spoke-resourc
 az network vnet subnet update -g "hub-spoke-microhack-rg"  -n "ServerSubnet" --vnet-name spoke-vnet --network-security-group spoke-vnet-srv-nsg
 ````
 
-# Challenge 1: Understand routing and vNet peering 
-
-In this challenge we will work with routing and peered Virtual Network. we start by adding one more spoke virtual network. 
-
-## Task : Deploy a new spoke Virtual Network
+# Challenge 2: Understand routing and vNet peering 
 
 Azure Virtual Network (VNet) is the fundamental building block for your private network in Azure. VNet enables many types of Azure resources, such as Azure Virtual Machines (VM), to securely communicate with each other, the internet, and on-premises networks. VNet is similar to a traditional network that you'd operate in your own data center, but brings with it additional benefits of Azure's infrastructure such as scale, availability, and isolation.
 
-In this task you need to the vnet, that can be done by clicking in the portal or run the following script in cloud shell.
+In this challenge we will work with routing and peered Virtual Network, so start by adding one more spoke virtual network to the hub. 
+
+## Task : Deploy a new spoke Virtual Network
+
+In this task we need to create a new vnet, that can be done by using the portal or run the following script in your cloud shell session.
+When creating a Virtal Network you need to specify an address prefix 
 
 - Create a new spoke nvet with a subnet .
 
@@ -212,7 +213,7 @@ More infomation [Virtual Network Peering](https://docs.microsoft.com/en-us/azure
 
 
 
-# Challenge 2: Route internet traffic through Azure Firewall
+# Challenge 3: Route internet traffic through Azure Firewall
 
 In this challenge you will explore how we can make our spokes communicate by sending all traffic through a Firewall, instead of go direct to Internet. You will route all traffic directly to the Azure Firewall. The Firewall is allready created for you.
 
