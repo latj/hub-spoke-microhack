@@ -37,9 +37,8 @@ After completing this MicroHack you will:
 # Lab
 
 The lab consists of a Hub and Spoke in the region you choose and a simulated On-premise location in same region.
-Each of the Spoke and On-prem VNETs contains a Virtual Machine running a basic web site. The hub VNET contains an Active Directory Domain Controller.
-During the course of the MicroHack you will connect the Spoke and Hub VNETs and the On-premise site, deploy an additional spokes, and manipulate and observe routing.
-At the end of the lab your deployment looks like this
+Each of the Spoke and On-prem VNETs contains a Virtual Machine. The hub VNET contains an VPN Gateway and Azure Firewall.
+During the course of the MicroHack you will deploy an additional spokes, and manipulate and observe routing.
 
 
 # Pre-requisites
@@ -57,17 +56,17 @@ At the end of the pre-requisites your base lab build looks as follows:
 In summary:
 
 - "On-Premises" environment simulated by Azure Virtual Network
-- On-Premises contains a management VM (*onprem-mgmt-vm*) and a dns server VM (*onprem-dns-vm*)
-- On-Premises is connected to Azure via a Site-to-Site VPN
-- Azure contains a simple Hub and Spoke topology, containing a management VMs in the spokes (*az-mgmt-vm, az-mgmt2-vm, az-srv-vm*) and a dns server VM in the hub (*az-dns-vm*)
+- "On-Premises" contains a windows VM (*vm-windows*)
+- "On-Premises" is connected to Azure via a Site-to-Site VPN
+- Azure contains a simple Hub and Spoke topology, containing a simple web application with two VMs in the spokes (*vm-web-server0, vm-web-server2*)
 - Azure Bastion is deployed in hub VNet to enable easy remote desktop access to the Windows VMs
-- All of the above is deployed within a single resource group called *hub-spoke-microhack-rg*
+- All of the above is deployed within a two resource groups called *hub-spoke-microhack* and *mock-onprem-microhack*
 
 ## Task 1 : Deploy Template
 
-We are going to use a predefined Terraform template to deploy the base environment. It will be deployed in to *your* Azure subscription, with resources running in the your specified Azure region.
+We are going to use a predefined ARM template to deploy the base environment. It will be deployed in to *your* Azure subscription, with resources running in the your specified Azure region.
 
-To start the terraform deployment, follow the steps listed below:
+To start the ARM deployment, follow the steps listed below:
 
 - Login to Azure cloud shell [https://shell.azure.com/](https://shell.azure.com/)
 - Ensure that you are operating within the correct subscription via:
@@ -88,13 +87,13 @@ To start the terraform deployment, follow the steps listed below:
 
 ## Task 2 : Explore and verify the deployed resources
 
-- Verify you can access all four Virtual Machine via Azure Bastion
+- Verify you can access all Virtual Machines via Azure Bastion
 
 Username: AzureAdmin
 
 Password: {as per above step}
 
-- Verify that your VNet Peering and Site-to-site VPN are funcitoning as expected. The easiest way to do this is as follows; Once you have Azure Bastion access to the desktop of *az-mgmt-vm*, launch remote desktop (mstsc), and attempt a connection to *onprem-mgmt-vm* (IP address 192.168.0.5). You should recieve the login prompt.
+- Verify that your VNet Peering and Site-to-site VPN are funcitoning as expected. The easiest way to do this is as follows; Once you have Azure Bastion access to the desktop of *vm-web-server0*, launch remote desktop (mstsc), and attempt a connection to *vm-windows* (IP address 192.168.1.132). You should recieve the login prompt.
 
 
 
