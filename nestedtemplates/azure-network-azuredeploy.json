@@ -213,7 +213,7 @@
                     {
                         "name": "[parameters('spokeNetwork').subnetName]",
                         "properties": {
-                            "addressPrefix": "[parameters('spokeNetwork').addressPrefix]"
+                            "addressPrefix": "[parameters('spokeNetwork').subnetPrefix]"
                         }
                     }
                 ]
