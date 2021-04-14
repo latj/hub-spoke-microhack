@@ -92,6 +92,8 @@ Password: {as per above step}
 
 # Challenge 1: Understand Network Security Groups 
 
+Azure Virtual Network (VNet) is the fundamental building block for your private network in Azure. VNet enables many types of Azure resources, such as Azure Virtual Machines (VM), to securely communicate with each other, the internet, and on-premises networks. VNet is similar to a traditional network that you'd operate in your own data center, but brings with it additional benefits of Azure's infrastructure such as scale, availability, and isolation.
+
 In the spoke vnet it is deployed a loadbalance and two VMs as backend pool. in this challange we will enable Network Security Groups (NSG) to filter the incomming traffic 
 
 ## Task 1 : Control network access to VM with Network Security Groups
@@ -118,34 +120,80 @@ az network nsg rule create -g "hub-spoke-microhack" --nsg-name nsg-spoke-resourc
 - Create new inbouond rule denying all traffic from onprem
 
 ````Bash
-az network nsg rule create -g "hub-spoke-microhack" --nsg-name nsg-spoke-resources -n deny-all-traffic-from-onprem --priority 1110 --source-address-prefixes "192.168.0.0/16" --source-port-ranges '*' --destination-address-prefixes "VirtualNetwork" --destination-port-ranges '*' --access Allow --protocol '*' --description "Deny onprem subnet traffic"
+az network nsg rule create -g "hub-spoke-microhack" --nsg-name nsg-spoke-resources -n deny-all-traffic-from-onprem --priority 1110 --source-address-prefixes "192.168.0.0/16" --source-port-ranges '*' --destination-address-prefixes "VirtualNetwork" --destination-port-ranges '*' --access Deny --protocol '*' --description "Deny onprem subnet traffic"
 
 ````
 
-- Assign NSG to the subnet of t.
+- Assign the NSG to the subnet 'snet-spoke-resources'in spoke 'vnet-spoke'.
 
 ````Bash
 az network vnet subnet update -g "hub-spoke-microhack"  -n "snet-spoke-resources" --vnet-name vnet-spoke --network-security-group nsg-spoke-resources
 ````
 
+## Task 2 : Verify the network access from VM 
+To verify if the right access i configured, test it from the VM in onprem vnet *vm-windows* 
+Do as follows; 
+Use Azure Bastion to access the desktop of *vm-windows*, 
+- Launch remote desktop (mstsc), and attempt a connection to *vm-web-server0* (IP address 10.100.0.5). You should not recieve the login prompt.
+- Lanuch a Internet Explorer and browse to *vm-web-server0* http://10.100.0.5 or *vm-web-server1* http://10.100.0.6 or *loadBalancer* http://10.100.0.4. and you will se the web page.
+
+## Task 3 : Verify the network access with NetworkWatcher 
+You can verify the access with the NetworkWatcher service in Azure, you can read more about the service [here](https://docs.microsoft.com/en-us/azure/network-watcher/network-watcher-monitoring-overview)
+
+To use NetworkWatcher eather from CLI/PowerShell on in the portal 
+
+
+- Command to test if port 3389 (MSTSC) is working.
+
+````Bash
+az network watcher test-ip-flow \
+  --direction inbound \
+  --local 10.100.0.6:3389 \
+  --protocol TCP \
+  --remote 192.168.1.132:60000 \
+  --vm vm-web-server0 \
+  --nic nic-web-server0 \
+  --resource-group hub-spoke-microhack
+  ````
+
+
+- Command to test if port 80 is working.
+
+````Bash
+az network watcher test-ip-flow \
+  --direction inbound \
+  --local 10.100.0.6:80 \
+  --protocol TCP \
+  --remote 192.168.1.132:60000 \
+  --vm vm-web-server0 \
+  --nic nic-web-server0 \
+  --resource-group hub-spoke-microhack
+  ````
+
+
+
 # Challenge 2: Understand routing and vNet peering 
 
-Azure Virtual Network (VNet) is the fundamental building block for your private network in Azure. VNet enables many types of Azure resources, such as Azure Virtual Machines (VM), to securely communicate with each other, the internet, and on-premises networks. VNet is similar to a traditional network that you'd operate in your own data center, but brings with it additional benefits of Azure's infrastructure such as scale, availability, and isolation.
+In this challenge we will work with routing and peering in Virtual Networks, we will start by adding one more spoke virtual network to the hub. 
+You can read more infomation about routing and peering in Virtual Networks [here]() 
 
-In this challenge we will work with routing and peered Virtual Network, so start by adding one more spoke virtual network to the hub. 
+## Task 1 : Deploy a new spoke Virtual Network
 
-## Task : Deploy a new spoke Virtual Network
-
-In this task we need to create a new vnet, that can be done by using the portal or run the following script in your cloud shell session.
+In this task we need to create a new vnet, that can be done by using the portal or run the following command in your cloud shell session.
 When creating a Virtal Network you need to specify an address prefix 
 
-- Create a new spoke nvet with a subnet .
+- Create a new spoke nvet named *vnet-spoke2* with a subnet named *snet-spoke-resources*.
 
 ````Bash
 az network vnet create -g hub-spoke-microhack -n vnet-spoke2 --address-prefix 10.200.0.0/16 --subnet-name snet-spoke-resources --subnet-prefix 10.200.0.0/24
 ````
+## Task 2 : Peer the new spoke to hub
 
-- Then we need to peer the the newly created with the hub vnet. that is done in two step first fron spoke the secound from hub.  
+Now we need to connect the the newly created with the hub vnet. That is done by peering them, it is done in two steps, first from spoke to hub, then from hub to spoke.
+in the case we will the spoke to be able to connect to onprem through VPN.
+More info about [Virtual Network peering](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview)  
+
+- Run the following command to peer the new spoke with hub
 
 ````Bash
     # Creates peering between vnets
