@@ -122,10 +122,10 @@ az network nsg rule create -g "hub-spoke-microhack" --nsg-name nsg-spoke-resourc
 
 ````
 
-- Assign NSG to the subnet of the *az-srv-vm*.
+- Assign NSG to the subnet of t.
 
 ````Bash
-az network vnet subnet update -g "hub-spoke-microhack-rg"  -n "ServerSubnet" --vnet-name spoke-vnet --network-security-group spoke-vnet-srv-nsg
+az network vnet subnet update -g "hub-spoke-microhack"  -n "snet-spoke-resources" --vnet-name vnet-spoke --network-security-group nsg-spoke-resources
 ````
 
 # Challenge 2: Understand routing and vNet peering 
