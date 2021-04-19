@@ -175,7 +175,7 @@ az network watcher test-ip-flow \
 # Challenge 2: Understand routing and vNet peering 
 
 In this challenge we will work with routing and peering in Virtual Networks, we will start by adding one more spoke virtual network to the hub. 
-You can read more infomation about routing and peering in Virtual Networks [here]() 
+ 
 
 ## Task 1 : Deploy a new spoke Virtual Network
 
@@ -209,7 +209,7 @@ More info about [Virtual Network peering](https://docs.microsoft.com/en-us/azure
     az vm create  --resource-group hub-spoke-microhack --name vm-mgmt-server --image win2019datacenter --nics nic-mgmt-server --admin-username AzureAdmin
 ````
 
-- Verify that your can access the new VM as expected. The easiest way to do this is as follows; Once you have Azure Bastion access to the desktop of *az-dns-vm*, launch remote desktop (mstsc), and attempt a connection to *az-srv2-vm* (IP address 10.200.0.4). You should recieve the login prompt.
+- Verify that your can access the new VM as expected. The easiest way to do this is as follows; Once you have Azure Bastion access to the desktop of *vm-windows*, launch remote desktop (mstsc), and attempt a connection to *az-srv2-vm* (IP address 10.200.0.4). You should recieve the login prompt.
 
 ## Task : Check the routing for Virtual Machines
 
@@ -248,7 +248,7 @@ You can read more about routing in Azure [here](https://docs.microsoft.com/en-us
     az network nic show-effective-route-table -g "hub-spoke-microhack" -n "nic-mgmt-server" --output table
 ````
 
-### :point_right: Compare then ae that any differernces
+### :point_right: Compare them and look for differernces
 
 :question: Will *vm-web-server0* and *vm-mgmt-server* be able to communicate?
 
@@ -256,10 +256,6 @@ You can read more about routing in Azure [here](https://docs.microsoft.com/en-us
 
 - Peering connections are non-transitive, low latency connections between virtual networks. Once peered, the virtual networks exchange traffic by using the Azure backbone without the need for a router.
 More infomation [Virtual Network Peering](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview#connectivity)
-
-
-
-
 
 # Challenge 3: Route internet traffic through Azure Firewall
 
