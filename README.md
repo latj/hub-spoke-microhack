@@ -313,14 +313,22 @@ Confirm that you can now access by usering following command
 
 You have implemented a secure internet edge based on Azure Firewall, which allows Contoso to control internet access for the wvd-workstation without routing traffic to the on-prem proxy. This approach reduces latency for connections between the wvd-workstation and the WVD control plane endpoints and helps improve the WVD user experience. It also allows Contoso to provide WVD users with access to external, trusted web sites directly from Azure.
 
-# Challenge 3: Control network with Azure Policies
-
-
 # Challenge 4: Monitoring
+
+
+# Challenge 5: Control network with Azure Policies
+
+## Task 1: Add Azure policy to control configuration of Virtual Network
+
+## Task 2: Assign Azure policy to control configuration of Virtual Network
+
+## Task 2: Force Azure policy to take appliy
 
 # Finished? Delete your lab
 
-- Delete the resource group privatelink-dns-microhack-rg
+- Delete the resource group hub-spoke-microhack and mock-prem-microsoft
+
+
 
 Thank you for participating in this MicroHack!
 
