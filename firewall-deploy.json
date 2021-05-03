@@ -55,9 +55,7 @@
       "azureFirewallSubnetName": "AzureFirewallSubnet",
       "jumpBoxSubnetName": "JumpboxSubnet",
       "serversSubnetName": "ServersSubnet",
-      "jumpBoxPublicIPAddressName": "JumpHostPublicIP",
-      "jumpBoxNsgName": "JumpHostNSG",
-       "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sajumpbox')]",
+      "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sajumpbox')]",
       "azfwRouteTableName": "AzfwRouteTable",
       "firewallName": "firewall1",
       "publicIPNamePrefix": "publicIP",
@@ -77,8 +75,7 @@
             }
           }
         }
-      ],
-      "networkSecurityGroupName": "[concat(variables('serversSubnetName'), '-nsg')]"
+      ]
     },
     "resources": [
       {
