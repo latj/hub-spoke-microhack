@@ -139,7 +139,7 @@
         "type": "Microsoft.Network/virtualNetworks",
         "location": "[parameters('location')]",
         "dependsOn": [
-          "[resourceId('Microsoft.Network/routeTables', variables('azfwRouteTableName'))]",
+          "[resourceId('Microsoft.Network/routeTables', variables('azfwRouteTableName'))]"
         ],
         "tags": {
           "displayName": "[parameters('virtualNetworkName')]"
