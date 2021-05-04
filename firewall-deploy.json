@@ -54,9 +54,8 @@
       "azureFirewallSubnetName": "AzureFirewallSubnet",
       "jumpBoxSubnetName": "JumpboxSubnet",
       "serversSubnetName": "ServersSubnet",
-      "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sajumpbox')]",
       "azfwRouteTableName": "AzfwRouteTable",
-      "firewallName": "firewall1",
+      "firewallName": "azurefirewall",
       "publicIPNamePrefix": "publicIP",
       "azureFirewallSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets',parameters('virtualNetworkName'), variables('azureFirewallSubnetName'))]",
       "azureFirewallSubnetJSON": "[json(format('{{\"id\": \"{0}\"}}', variables('azureFirewallSubnetId')))]",
@@ -104,17 +103,6 @@
         }
       },
       {
-        "type": "Microsoft.Storage/storageAccounts",
-        "name": "[variables('storageAccountName')]",
-        "apiVersion": "2019-06-01",
-        "location": "[parameters('location')]",
-        "sku": {
-          "name": "Standard_LRS"
-        },
-        "kind": "Storage",
-        "properties": {}
-      },
-      {
         "type": "Microsoft.Network/routeTables",
         "name": "[variables('azfwRouteTableName')]",
         "apiVersion": "2019-12-01",
@@ -128,48 +116,6 @@
                 "addressPrefix": "0.0.0.0/0",
                 "nextHopType": "VirtualAppliance",
                 "nextHopIpAddress": "[variables('nextHopIP')]"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "name": "[parameters('virtualNetworkName')]",
-        "apiVersion": "2019-12-01",
-        "type": "Microsoft.Network/virtualNetworks",
-        "location": "[parameters('location')]",
-        "dependsOn": [
-          "[resourceId('Microsoft.Network/routeTables', variables('azfwRouteTableName'))]"
-        ],
-        "tags": {
-          "displayName": "[parameters('virtualNetworkName')]"
-        },
-        "properties": {
-          "addressSpace": {
-            "addressPrefixes": [
-              "[variables('vnetAddressPrefix')]"
-            ]
-          },
-          "subnets": [
-            {
-              "name": "[variables('jumpBoxSubnetName')]",
-              "properties": {
-                "addressPrefix": "[variables('jumpboxSubnetPrefix')]"
-              }
-            },
-            {
-              "name": "[variables('azureFirewallSubnetName')]",
-              "properties": {
-                "addressPrefix": "[variables('azureFirewallSubnetPrefix')]"
-              }
-            },
-            {
-              "name": "[variables('serversSubnetName')]",
-              "properties": {
-                "addressPrefix": "[variables('serversSubnetPrefix')]",
-                "routeTable": {
-                  "id": "[resourceId('Microsoft.Network/routeTables', variables('azfwRouteTableName'))]"
-                }
               }
             }
           ]
