@@ -134,7 +134,7 @@
         "vmNameWeb": "vm-web-server",
         "publicIPNamePrefix": "publicIP",
         "azsubnetName": "AzureFirewallSubnet",
-        "hubNetwork": "vnet-hub"
+        "hubNetwork": "vnet-hub",
         "azureFirewallSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('hubNetwork'), variables('azsubnetName'))]",
         "azureFirewallSubnetJSON": "[json(format('{{\"id\": \"{0}\"}}', variables('azureFirewallSubnetId')))]",
         "copy": [
