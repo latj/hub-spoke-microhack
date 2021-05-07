@@ -69,6 +69,10 @@
                 "publicIPAddressName": "pip-firewall"
             }
         },
+        "firewallPolicyName": {
+        "defaultValue": "azurefirewallPolicy",
+        "type": "String"
+        },
         "spokeRoutes": {
             "type": "object",
             "defaultValue": {
@@ -575,6 +579,57 @@
             "properties": {
                 "publicIPAllocationMethod": "Static"
             }
+        },
+        {
+            "apiVersion": "2020-05-01",
+            "type": "Microsoft.Network/firewallPolicies",
+            "name": "[parameters('firewallPolicyName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+            "threatIntelMode": "Alert"
+            },
+            "resources":[
+            {
+            "apiVersion": "2020-05-01",
+            "type": "ruleCollectionGroups",
+            "name": "RuleCollectionGroup1",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/firewallPolicies',parameters('firewallPolicyName'))]"
+            ],
+            "properties" : {
+                "priority": 100,
+                "ruleCollections": [
+                {
+                    "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                    "name": "Example-Filter-Rule",
+                    "action": {
+                        "type": "Deny"
+                    },
+                    "priority": 1000,
+                    "rules": [
+                        {
+                        "ruleType": "NetworkRule",
+                        "name": "network-rule1",
+                        "ipProtocols": [
+                        "TCP"
+                        ],
+                        "destinationPorts": [
+                        "*"
+                        ],
+                        "sourceIpGroups": [
+                            "*"
+                        ],
+                        "destinationIpGroups": [
+                            "*"
+                        ]
+                        }
+                    ]
+                }
+            ]
+            }
+            }
+            ]
         },
         {
             "comments": "Azure Firewall and diagnostic configuration",
