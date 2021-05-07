@@ -60,6 +60,27 @@
                 "nsgName": "nsg-hub-bastion"
             }
         },
+        "ipgroups_name1": {
+        "defaultValue": "[concat('ipgroup1', uniqueString(resourceGroup().id))]",
+        "type": "String"
+        },
+        "ipgroups_name2": {
+        "defaultValue": "[concat('ipgroup2', uniqueString(resourceGroup().id))]",
+        "type": "String"
+        },
+        "firewallPolicyName": {
+        "defaultValue": "azurefirewallPolicy",
+        "type": "String"
+        },
+        "numberOfFirewallPublicIPAddresses": {
+        "type": "int",
+        "defaultValue": 1,
+        "minValue": 1,
+        "maxValue": 100,
+        "metadata": {
+          "description": "Number of public IP addresses for the Azure Firewall"
+          }
+        },
         "azureFirewall": {
             "type": "object",
             "defaultValue": {
@@ -111,6 +132,26 @@
         "peering-name-spoke-to-hub": "spoke-to-hub",
         "nicNameWeb": "nic-web-server",
         "vmNameWeb": "vm-web-server",
+        "publicIPNamePrefix": "publicIP",
+        "azsubnetName": "AzureFirewallSubnet",
+        "hubNetwork": "vnet-hub"
+        "azureFirewallSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('hubNetwork'), variables('azsubnetName'))]",
+        "azureFirewallSubnetJSON": "[json(format('{{\"id\": \"{0}\"}}', variables('azureFirewallSubnetId')))]",
+        "copy": [
+        {
+          "name": "azureFirewallIpConfigurations",
+          "count": "[parameters('azureFirewall').publicIPAddressName]",
+          "input": {
+            "name": "[concat('IpConf', copyIndex('azureFirewallIpConfigurations'))]",
+            "properties": {
+              "subnet": "[if(equals(copyIndex('azureFirewallIpConfigurations'), 0), variables('azureFirewallSubnetJSON'), json('null'))]",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('publicIPNamePrefix'), add(copyIndex('azureFirewallIpConfigurations'), 1)))]"
+              }
+            }
+          }
+        }
+        ],
         "windowsOSVersion": "2012-R2-Datacenter"
     },
     "resources": [
@@ -577,67 +618,101 @@
             }
         },
         {
-            "comments": "Azure Firewall and diagnostic configuration",
-            "type": "Microsoft.Network/azureFirewalls",
+            "type": "Microsoft.Network/ipGroups",
+            "apiVersion": "2019-12-01",
+            "name": "[parameters('ipgroups_name1')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "ipAddresses": [
+                "13.73.64.64/26",
+                "13.73.208.128/25",
+                "52.126.194.0/23"
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/ipGroups",
+            "apiVersion": "2019-12-01",
+            "name": "[parameters('ipgroups_name2')]",
+            "location": "[parameters('location')]",
+            "properties": {
+            "ipAddresses": [
+                "12.0.0.0/24",
+                "13.9.0.0/24"
+                ]
+            }
+        },
+        {
             "apiVersion": "2020-05-01",
-            "name": "[parameters('azureFirewall').name]",
+            "type": "Microsoft.Network/firewallPolicies",
+            "name": "[parameters('firewallPolicyName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+            "threatIntelMode": "Alert"
+            },
+            "resources":[
+            {
+            "apiVersion": "2020-05-01",
+            "type": "ruleCollectionGroups",
+            "name": "RuleCollectionGroup1",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]"
+                "[resourceId('Microsoft.Network/ipGroups', parameters('ipgroups_name1'))]",
+                "[resourceId('Microsoft.Network/ipGroups', parameters('ipgroups_name2'))]",
+                "[resourceId('Microsoft.Network/firewallPolicies',parameters('firewallPolicyName'))]"
             ],
-            "properties": {
-                "sku": {
-                    "name": "AZFW_VNet",
-                    "tier": "Standard"
-                },
-                "threatIntelMode": "Alert",
-                "ipConfigurations": [
-                    {
-                        "name": "[parameters('azureFirewall').name]",
-                        "properties": {
-                            "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('azureFirewall').publicIPAddressName)]"
-                            },
-                            "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubNetwork').name, parameters('azureFirewall').subnetName)]"
-                            }
-                        }
-                    }
-                ],
-                "applicationRuleCollections": [
-                    {
-                        "name": "spoke-outbound",
-                        "properties": {
-                            "priority": 100,
-                            "action": {
-                                "type": "Allow"
-                            },
-                            "rules": [
-                                {
-                                    "name": "all-internet",
-                                    "protocols": [
-                                        {
-                                            "protocolType": "Http",
-                                            "port": 80
-                                        },
-                                        {
-                                            "protocolType": "Https",
-                                            "port": 443
-                                        }
-                                    ],
-                                    "targetFqdns": [
-                                        "*"
-                                    ],
-                                    "sourceAddresses": [
-                                        "*"
-                                    ]
-                                }
+            "properties" : {
+                "priority": 100,
+                "ruleCollections": [
+                {
+                    "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                    "name": "Example-Filter-Rule",
+                    "action": {
+                        "type": "Deny"
+                    },
+                    "priority": 1000,
+                    "rules": [
+                        {
+                            "ruleType": "NetworkRule",
+                            "name": "network-rule1",
+                            "ipProtocols": [
+                                "TCP"
+                            ],
+                            "destinationPorts": [
+                            "*"
+                            ],
+                            "sourceIpGroups": [
+                                "[resourceId('Microsoft.Network/ipGroups', parameters('ipgroups_name1'))]"
+                            ],
+                            "destinationIpGroups": [
+                                "[resourceId('Microsoft.Network/ipGroups', parameters('ipgroups_name2'))]"
                             ]
                         }
-                    }
-                ]
-            },
-            "resources": [
+                    ]
+                }
+            ]
+            }
+            }
+            ]
+        },
+        {
+        "comments": "Azure Firewall and diagnostic configuration",
+        "apiVersion": "2019-09-01",
+        "type": "Microsoft.Network/azureFirewalls",
+        "name": "[parameters('azureFirewall').name]",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]",
+          "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]",
+          "publicIpCopy"
+        ],
+        "properties": {
+          "ipConfigurations": "[variables('azureFirewallIpConfigurations')]",
+          "firewallPolicy":{
+                "id": "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]"
+          }
+        },
+        "resources": [
                 {
                     "type": "providers/diagnosticSettings",
                     "apiVersion": "2017-05-01-preview",
