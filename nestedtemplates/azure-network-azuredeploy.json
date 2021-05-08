@@ -121,6 +121,7 @@
         "logAnalyticsWorkspace": "[concat('la-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
         "peering-name-hub-to-spoke": "hub-to-spoke",
         "peering-name-spoke-to-hub": "spoke-to-hub",
+        "azureFirewallSubnetName": "AzureFirewallSubnet",
         "azureFirewallSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets',parameters('hubNetwork'), variables('azureFirewallSubnetName'))]",
         "azureFirewallSubnetJSON": "[json(format('{{\"id\": \"{0}\"}}', variables('azureFirewallSubnetId')))]",
         "publicIPNamePrefix": "pip-firewall",
@@ -131,12 +132,12 @@
             "input": {
                 "name": "[concat('IpConf', copyIndex('azureFirewallIpConfigurations'))]",
                 "properties": {
-                "subnet": "[if(equals(copyIndex('azureFirewallIpConfigurations'), 0), variables('azureFirewallSubnetJSON'), json('null'))]",
-                "publicIPAddress": {
-                    "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('publicIPNamePrefix'), add(copyIndex('azureFirewallIpConfigurations'), 1)))]"
+                    "subnet": "[if(equals(copyIndex('azureFirewallIpConfigurations'), 0), variables('azureFirewallSubnetJSON'), json('null'))]",
+                    "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('publicIPNamePrefix'), add(copyIndex('azureFirewallIpConfigurations'), 1)))]"
+                        }
+                    }
                 }
-                }
-            }
             }
         ],
         "nicNameWeb": "nic-web-server",
