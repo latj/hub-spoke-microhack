@@ -69,6 +69,14 @@
                 "publicIPAddressName": "pip-firewall"
             }
         },
+        "availabilityZones": {
+        "type": "array",
+        "defaultValue": [
+        ],
+        "metadata": {
+            "description": "Zone numbers e.g. 1,2,3."
+            }
+        },
         "firewallPolicyName": {
         "defaultValue": "azurefirewallPolicy",
         "type": "String"
@@ -113,6 +121,24 @@
         "logAnalyticsWorkspace": "[concat('la-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
         "peering-name-hub-to-spoke": "hub-to-spoke",
         "peering-name-spoke-to-hub": "spoke-to-hub",
+        "azureFirewallSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets',parameters('hubNetwork'), variables('azureFirewallSubnetName'))]",
+        "azureFirewallSubnetJSON": "[json(format('{{\"id\": \"{0}\"}}', variables('azureFirewallSubnetId')))]",
+        "publicIPNamePrefix": "pip-firewall",
+        "copy": [
+            {
+            "name": "azureFirewallIpConfigurations",
+            "count": "1",
+            "input": {
+                "name": "[concat('IpConf', copyIndex('azureFirewallIpConfigurations'))]",
+                "properties": {
+                "subnet": "[if(equals(copyIndex('azureFirewallIpConfigurations'), 0), variables('azureFirewallSubnetJSON'), json('null'))]",
+                "publicIPAddress": {
+                    "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('publicIPNamePrefix'), add(copyIndex('azureFirewallIpConfigurations'), 1)))]"
+                }
+                }
+            }
+            }
+        ],
         "nicNameWeb": "nic-web-server",
         "vmNameWeb": "vm-web-server",
         "windowsOSVersion": "2012-R2-Datacenter"
@@ -630,6 +656,24 @@
             }
             }
             ]
+        },
+        {
+            "apiVersion": "2019-09-01",
+            "type": "Microsoft.Network/azureFirewalls",
+            "name": "[parameters('azureFirewall').name]",
+            "location": "[parameters('location')]",
+            "zones": "[if(equals(length(parameters('availabilityZones')), 0), json('null'), parameters('availabilityZones'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork'))]",
+                "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]",
+                "publicIpCopy"
+            ],
+            "properties": {
+                "ipConfigurations": "[variables('azureFirewallIpConfigurations')]",
+                "firewallPolicy":{
+                        "id": "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]"
+                }
+            }
         },
         {
             "comments": "Azure Firewall and diagnostic configuration",
