@@ -130,25 +130,6 @@
         "logAnalyticsWorkspace": "[concat('la-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
         "peering-name-hub-to-spoke": "hub-to-spoke",
         "peering-name-spoke-to-hub": "spoke-to-hub",
-        "azureFirewallSubnetName": "AzureFirewallSubnet",
-        "azureFirewallSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets',parameters('hubNetwork'), variables('azureFirewallSubnetName'))]",
-        "azureFirewallSubnetJSON": "[json(format('{{\"id\": \"{0}\"}}', variables('azureFirewallSubnetId')))]",
-        "publicIPNamePrefix": "pip-firewall",
-        "copy": [
-            {
-            "name": "azureFirewallIpConfigurations",
-            "count": "[parameters('numberOfFirewallPublicIPAddresses')]",
-            "input": {
-                "name": "[concat('IpConf', copyIndex('azureFirewallIpConfigurations'))]",
-                "properties": {
-                    "subnet": "[if(equals(copyIndex('azureFirewallIpConfigurations'), 0), variables('azureFirewallSubnetJSON'), json('null'))]",
-                    "publicIPAddress": {
-                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('publicIPNamePrefix'), add(copyIndex('azureFirewallIpConfigurations'), 1)))]"
-                        }
-                    }
-                }
-            }
-        ],
         "nicNameWeb": "nic-web-server",
         "vmNameWeb": "vm-web-server",
         "windowsOSVersion": "2012-R2-Datacenter"
@@ -668,22 +649,63 @@
             ]
         },
         {
-            "apiVersion": "2019-09-01",
+            "comments": "Azure Firewall and diagnostic configuration",
             "type": "Microsoft.Network/azureFirewalls",
+            "apiVersion": "2020-05-01",
             "name": "[parameters('azureFirewall').name]",
             "location": "[parameters('location')]",
-            "zones": "[if(equals(length(parameters('availabilityZones')), 0), json('null'), parameters('availabilityZones'))]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork'))]",
-                "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]",
-                "publicIpCopy"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]",
+                "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]"
             ],
             "properties": {
-                "ipConfigurations": "[variables('azureFirewallIpConfigurations')]",
+                "threatIntelMode": "Alert",
+                "ipConfigurations": [
+                    {
+                        "name": "[parameters('azureFirewall').name]",
+                        "properties": {
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('azureFirewall').publicIPAddressName)]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubNetwork').name, parameters('azureFirewall').subnetName)]"
+                            }
+                        }
+                    }
+                ],
                 "firewallPolicy":{
                         "id": "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]"
                 }
-            }
+
+            },
+            "resources": [
+                {
+                    "type": "providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Network/azureFirewalls', parameters('azureFirewall').name)]",
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]",
+                        "logs": [
+                            {
+                                "category": "AzureFirewallApplicationRule",
+                                "enabled": true
+                            },
+                            {
+                                "category": "AzureFirewallNetworkRule",
+                                "enabled": true
+                            },
+                            {
+                                "category": "AzureFirewallDnsProxy",
+                                "enabled": true
+                            }
+                        ]
+                    }
+                }
+            ]
         },
         {
             "comments": "Network security group + rules for spoke network and diagnostic configuration",
