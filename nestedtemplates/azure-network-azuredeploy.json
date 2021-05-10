@@ -613,38 +613,9 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/firewallPolicies',parameters('firewallPolicyName'))]"
-            ],
-            "properties" : {
-                "priority": 100,
-                "ruleCollections": [
-                {
-                    "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
-                    "name": "Example-Filter-Rule",
-                    "action": {
-                        "type": "Deny"
-                    },
-                    "priority": 1000,
-                    "rules": [
-                        {
-                        "ruleType": "NetworkRule",
-                        "name": "network-rule1",
-                        "ipProtocols": [
-                        "TCP"
-                        ],
-                        "destinationPorts": [
-                        "*"
-                        ],
-                        "sourceIpGroups": [
-                            "*"
-                        ],
-                        "destinationIpGroups": [
-                            "*"
-                        ]
-                        }
-                    ]
+                ],
+                "properties" : {
                 }
-            ]
-            }
             }
             ]
         },
