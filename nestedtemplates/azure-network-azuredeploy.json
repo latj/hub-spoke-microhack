@@ -604,20 +604,7 @@
             "location": "[parameters('location')]",
             "properties": {
             "threatIntelMode": "Alert"
-            },
-            "resources":[
-            {
-            "apiVersion": "2020-05-01",
-            "type": "ruleCollectionGroups",
-            "name": "RuleCollectionGroup1",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/firewallPolicies',parameters('firewallPolicyName'))]"
-                ],
-                "properties" : {
-                }
             }
-            ]
         },
         {
             "comments": "Azure Firewall and diagnostic configuration",
