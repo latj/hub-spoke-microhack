@@ -303,9 +303,17 @@ To assign the route table run the following command.
     az network vnet subnet update -g "hub-spoke-microhack" -n GatewaySubnet --vnet-name vnet-hub --route-table gateway-routes
 ````
 
-Verify if you still have connectivity to the internet from the *vm-mgmt-server*. Connections are now being routed to Azure Firewall, which is running with the default "deny all" policy.
+:question: Verify if you still have connectivity to the internet from the *vm-mgmt-server*.
 
+Connections are now being routed to Azure Firewall, which is running with the default "deny all" policy.
 
+:question: Verify if you have connectivity to *vm-web-server0* from the *vm-mgmt-server*. 
+
+- Now check the routing for *vm-mgmt-server* by specifiying the nic *nic-mgmt-server* to se what have change after applying the route table.
+
+````Bash
+    az network nic show-effective-route-table -g "hub-spoke-microhack" -n "nic-mgmt-server" --output table
+````
 
 ## Task 3: Implement policy with Azure Firewall rules to connect to on-premixes
 
