@@ -298,6 +298,7 @@ Now we have configured route-table for all spokes. For the onprem traffic we nee
 ![image](images/gateway-route.png)
 
 To assign the route table run the following command.
+
 ````Bash
     # assign routetable to gateway subnet
     az network vnet subnet update -g "hub-spoke-microhack" -n GatewaySubnet --vnet-name vnet-hub --route-table gateway-routes
@@ -307,15 +308,16 @@ To assign the route table run the following command.
 
 Connections are now being routed to Azure Firewall, which is running with the default "deny all" policy.
 
-:question: Verify if you have connectivity to *vm-web-server0* from the *vm-mgmt-server*. 
+:question: Verify if you have connectivity to *vm-web-server0* from the *vm-mgmt-server*.
 
-- Now check the routing for *vm-mgmt-server* by specifiying the nic *nic-mgmt-server* to se what have change after applying the route table.
+
+Now check the routing for *vm-mgmt-server* by specifiying the nic *nic-mgmt-server* to se what have change after applying the route table.
 
 ````Bash
     az network nic show-effective-route-table -g "hub-spoke-microhack" -n "nic-mgmt-server" --output table
 ````
 
-## Task 3: Implement policy with Azure Firewall rules to connect to on-premixes
+## Task 4: Implement policy with Azure Firewall rules to connect to Internet
 
 Configure Azure Firewall to implement the same access as before :
 
@@ -332,16 +334,32 @@ Confirm that you can now access by usering following command
 
 ![image](images/azfw-public-ip.png)
 
-## Task 4: Enable access to WVD endpoints via Azure Firewall
+## Task 5: Implement policy with Azure Firewall rules to connect to on-premixes
 
 
+## Task 6: Implement policy with Azure Firewall rules to connect to other spokes
+
+## Task 7: Implement policy with Azure Firewall rules and route table for subnet to subnet traffic.
 
 ## :checkered_flag: Results
 
-You have implemented a secure internet edge based on Azure Firewall, which allows Contoso to control internet access for the wvd-workstation without routing traffic to the on-prem proxy. This approach reduces latency for connections between the wvd-workstation and the WVD control plane endpoints and helps improve the WVD user experience. It also allows Contoso to provide WVD users with access to external, trusted web sites directly from Azure.
+You have implemented a Azure Firewall, which allows to control internet access and traffic between spoke vnets.
 
 # Challenge 4: Monitoring
 
+In this challenge we will go through how we can monitor and detect allert on network resources in Azure.
+
+## Task 1: Azure Monitor Notwork Insights
+The Azure Monitor Network Insights Overview page provides an easy way to visualize the inventory of your networking resources, together with resource health and alerts. It's divided into four key functional areas: search and filtering, resource health and metrics, alerts, and dependency view.
+
+In the Azure Portal open Azure Monitor Network Insights Overview page
+
+![image](images/azure-monitor-networks.png.png)
+
+
+
+## Task 2: Network watcher
+## Task 3: Workbook Azure Firewall
 
 # Challenge 5: Control network with Azure Policies
 
