@@ -213,7 +213,7 @@ More info about [Virtual Network peering](https://docs.microsoft.com/en-us/azure
 
 - Verify that your can access the new VM as expected. The easiest way to do this is as follows; Once you have Azure Bastion access to the desktop of *vm-windows*, launch remote desktop (mstsc), and attempt a connection to *az-srv2-vm* (IP address 10.200.0.4). You should recieve the login prompt.
 
-## Task : Check the routing for Virtual Machines
+## Task 3 : Check the routing for Virtual Machines
 
 We will check the routing configuration of the first webserver in the spoke netwotk *vm-web-server0*, that can be done by using the commands CLI below or using the portal.
 
@@ -263,7 +263,7 @@ More infomation [Virtual Network Peering](https://docs.microsoft.com/en-us/azure
 
 In this challenge you will explore how we can make our spokes communicate by sending all traffic through a Firewall, instead of go direct to Internet. You will route all traffic directly to the Azure Firewall. The Firewall is allready created for you.
 
-So you can create User Defined Routes (UDR) or Route Table in Azure, to defined route so in the challenge we will add route 
+So with User Defined Routes (UDR) or Route Table in Azure, you can defined route where nexthop will be. 
 
 ![image](images/hub-spoke-azfw.png)
 
@@ -279,12 +279,29 @@ Go to your Azure Firewall instance's "Overview" and take note of its private IP 
 ## Task 2: Configure a default route via azure Firewall
 
 
-Find the Route Table "spoke-route" and check the next hop of the default route. To do so, click on “Routes” on the menu on the left, find the custom default route that you defined in the previous challenge and click on it. The next hop should be "VirtualAppliance" with the private IP of your Azure firewall instance, Don't forget to click save. 
+So in this task we will configure route tables that all traffic will be sent to Azure Firewll for all spokes and for onprem access.
+First find the Route Table "spoke-route" and check the next hop of the default route. To do so, click on “Routes” on the menu on the left, find the custom default route that you defined in the previous challenge and click on it. The next hop should be "VirtualAppliance" with the private IP of your Azure firewall instance, Don't forget to click save. 
 
 ![image](images/default-via-azfw.png)
 
+Now we have configured the route table, now we need to assign it, to each subnets in spokes. That can be done by running the following commands to update the configuration. 
 
+````Bash
+    # assign routetable to subnets in spokes 
+    az network vnet subnet update -g "hub-spoke-microhack" -n snet-spoke-resources --vnet-name vnet-spoke --route-table spoke-routes
+    az network vnet subnet update -g "hub-spoke-microhack" -n snet-spoke-resources --vnet-name vnet-spoke2 --route-table spoke-routes
 
+````
+
+Now we have configured route-table for all spokes. For the onprem traffic we need to defined the route table for the Virtual Network Gateway. Find the Route Table "gateway-route" and check the next hop for each spoke. It isn't recommended to configure 0.0.0.0/0 you need to do one entry per spoke vnet. 
+
+![image](images/gateway-route.png)
+
+To assign the route table run the following command.
+````Bash
+    # assign routetable to gateway subnet
+    az network vnet subnet update -g "hub-spoke-microhack" -n GatewaySubnet --vnet-name vnet-hub --route-table gateway-routes
+````
 
 Verify if you still have connectivity to the internet from the *vm-mgmt-server*. Connections are now being routed to Azure Firewall, which is running with the default "deny all" policy.
 
