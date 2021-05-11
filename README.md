@@ -354,7 +354,7 @@ The Azure Monitor Network Insights Overview page provides an easy way to visuali
 
 In the Azure Portal open Azure Monitor Network Insights Overview page
 
-![image](images/azure-monitor-networks.png.png)
+![image](images/azure-monitor-networks.png)
 
 
 
