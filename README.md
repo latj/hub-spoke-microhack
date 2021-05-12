@@ -1,12 +1,12 @@
 # **Azure Hub Spoke MicroHack**
 
+Work in progress
 # Contents
 
 [MicroHack introduction](#Introduction)
 
 [Pre-requisites](#Pre-requisites)
-Challenge 1: Understand Network Security Groups
-Challenge 2: Understand routing and vNet peering 
+
 
 
 
