@@ -68,11 +68,7 @@ To start the ARM deployment, follow the steps listed below:
 
 `az account show`
 
-- Clone the following GitHub repository 
-
-`git clone https://github.com/latj/hub-spoke-microhack`
-
-- Go to the new folder hub-spoke-microhack and start the deployment 
+- Start the deployment, you can change location to a region of choose.   
 
 `az deployment sub create     --template-uri https://raw.githubusercontent.com/latj/hub-spoke-microhack/master/azuredeploy.json --location eastus`
 
