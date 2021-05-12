@@ -341,7 +341,7 @@ Confirm that you can now access by usering following command
 
 ## Task 7: Implement policy with Azure Firewall rules and route table for subnet to subnet traffic.
 
-To able to test this we need to have to subnets in the same vnet. So we will start to create an extra subnet in the spoke you created before.
+To able to test this we need to have a subnets in the same vnet. So we will start to create an extra subnet in the spoke you created before. And we also create an VM in that subnet.
 
 You can use the following command.
 
@@ -356,6 +356,24 @@ You can use the following command.
     az vm create --resource-group hub-spoke-microhack --name vm-mgmt-server2 --image win2019datacenter --nics nic-mgmt-server2 --admin-username AzureAdmin
 ````
 
+If we look at effective route table for the newly created VM, it looks the same as the other VM in the other subnet
+
+````Bash
+    #show effective route table
+    az network nic show-effective-route-table -g "hub-spoke-microhack" -n "nic-mgmt-server2" --output table
+    az network nic show-effective-route-table -g "hub-spoke-microhack" -n "nic-mgmt-server2" --output table
+````
+
+Apply an new route tabek for the
+
+
+````Bash
+    az network route-table create -g"hub-spoke-microhack"  -n spoke2-res2-route
+    az network route-table route create -g "hub-spoke-microhack" --route-table-name spoke2-res2-route -n DefaultRoute \
+    --next-hop-type VirtualAppliance --address-prefix 0.0.0.0/0 --next-hop-ip-address 10.0.3.4
+     az network route-table route create -g "hub-spoke-microhack" --route-table-name spoke2-res2-route -n subnetRoute \
+    --next-hop-type VirtualAppliance --address-prefix 10.200.0.0/24 --next-hop-ip-address 10.0.3.4
+````
 
 ## :checkered_flag: Results
 
