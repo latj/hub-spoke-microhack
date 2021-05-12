@@ -341,6 +341,22 @@ Confirm that you can now access by usering following command
 
 ## Task 7: Implement policy with Azure Firewall rules and route table for subnet to subnet traffic.
 
+To able to test this we need to have to subnets in the same vnet. So we will start to create an extra subnet in the spoke you created before.
+
+You can use the following command.
+
+
+````Bash
+    # add subnet and routetable to that subnet
+    az network vnet subnet create -g "hub-spoke-microhack" --vnet-name vnet-spoke2 -n snet-spoke-resources2 \
+    --address-prefixes 10.200.1.0/24 --route-table spoke-routes
+    # Create a VM nic in the new subnet
+    az network nic create --resource-group hub-spoke-microhack --name nic-mgmt-server2 --subnet snet-spoke-resources2 --private-ip-address 10.200.1.4 --vnet-name vnet-spoke2
+    # Create a VM connected to the newly created NIC
+    az vm create --resource-group hub-spoke-microhack --name vm-mgmt-server2 --image win2019datacenter --nics nic-mgmt-server2 --admin-username AzureAdmin
+````
+
+
 ## :checkered_flag: Results
 
 You have implemented a Azure Firewall, which allows to control internet access and traffic between spoke vnets.
@@ -349,8 +365,8 @@ You have implemented a Azure Firewall, which allows to control internet access a
 
 In this challenge we will go through how we can monitor and detect allert on network resources in Azure.
 
-## Task 1: Azure Monitor Notwork Insights
-The Azure Monitor Network Insights Overview page provides an easy way to visualize the inventory of your networking resources, together with resource health and alerts. It's divided into four key functional areas: search and filtering, resource health and metrics, alerts, and dependency view.
+## Task 1: Azure Monitor Network Insights
+The Azure Monitor Network Insights Overview page provides an easy way to visualize the inventory of your networking resources, together with resource health and alerts. It's divided into four key functional areas: search and filtering, resource health and metrics, alerts, and dependency view. More info [here](https://docs.microsoft.com/en-us/azure/azure-monitor/insights/network-insights-overview)
 
 In the Azure Portal open Azure Monitor Network Insights Overview page
 
