@@ -259,7 +259,7 @@ You can read more about routing in Azure [here](https://docs.microsoft.com/en-us
 - Peering connections are non-transitive, low latency connections between virtual networks. Once peered, the virtual networks exchange traffic by using the Azure backbone without the need for a router.
 More infomation [Virtual Network Peering](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview#connectivity)
 
-# Challenge 3: Route internet traffic through Azure Firewall
+# Challenge 3: Route traffic through Azure Firewall
 
 In this challenge you will explore how we can make our spokes communicate by sending all traffic through a Firewall, instead of go direct to Internet. You will route all traffic directly to the Azure Firewall. The Firewall is allready created for you.
 
@@ -276,7 +276,7 @@ Go to your Azure Firewall instance's "Overview" and take note of its private IP 
 ![image](images/firewall-overview.png)
 
 
-## Task 2: Configure a default route via azure Firewall
+## Task 2: Configure a default route to send traffic to Azure Firewall
 
 
 So in this task we will configure route tables that all traffic will be sent to Azure Firewll for all spokes and for onprem access.
@@ -334,12 +334,10 @@ Confirm that you can now access by usering following command
 
 ![image](images/azfw-public-ip.png)
 
-## Task 5: Implement policy with Azure Firewall rules to connect to on-premixes
+## Task 5: Azure Firewall rules and route tables to connect between spokes and to on-prem
 
 
-## Task 6: Implement policy with Azure Firewall rules to connect to other spokes
-
-## Task 7: Implement policy with Azure Firewall rules and route table for subnet to subnet traffic.
+## Task 6: Implement policy with Azure Firewall rules and route table for subnet to subnet traffic.
 
 To able to test this we need to have a subnets in the same vnet. So we will start to create an extra subnet in the spoke you created before. And we also create an VM in that subnet.
 
