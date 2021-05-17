@@ -417,7 +417,8 @@ OK, now you need to assign the policy to a scope, it can be Management Group, Su
 # Next step
 
 If you would like to understand more and follow Microsoft recommeded configuration, you can take a look at Cloud Adoption Framework(CAF) there is sections about [Best practices](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/) where you read more.
-In CAF it is a section about Azure Landing zones and design guidelines that can be good to understand, more info [here](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/enterprise-scale/design-guidelines)
+
+In the CAF you can find info about Azure Landing zones and design guidelines that can be good to understand, more info [here](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/enterprise-scale/design-guidelines) And also specific infomation regaring hub-spoke networking, more info [here.](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/enterprise-scale/network-topology-and-connectivity) 
 
 
 
