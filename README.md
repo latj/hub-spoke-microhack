@@ -390,10 +390,25 @@ In the Azure Portal open Azure Monitor Network Insights Overview page
 ## Task 3: Workbook Azure Firewall
 
 # Challenge 5: Control network with Azure Policies
+With Azure Policy you can enforce organizational standards and to assess compliance at-scale. Common use cases for Azure Policy include implementing governance for resource consistency, regulatory compliance, security, cost, and management. Policy definitions for these common use cases are already available in your Azure environment as built-ins to help you get started. But you can also crate your own Azure Policy
 
-## Task 1: Add Azure policy to control configuration of Virtual Network
+For more information, see [Azure Policy documentation.](https://docs.microsoft.com/en-us/azure/governance/policy/overview)
+
+Each policy definition in Azure Policy has a single effect. They can be Append, Audit, AuditIfNotExists, Deny, DeployIfNotExists, Disabled or Modify. In this task wil will only use AuditIfNotExists, so it will only audit. But it is possiable with DeployIfNotExists to deploy resources that are missing, for example NSG:s or Route Tables. More info [Understand Azure Policy effects](https://docs.microsoft.com/en-us/azure/governance/policy/concepts/effects) 
+
+## Task 1: Find Azure policy to control configuration of Virtual Network
+In the this task you will use a bulit-in policy definition named *All Internet traffic should be routed via your deployed Azure Firewall*, that will audit if route table isn't configured.
+
+So in the Azure Portal navigate to the Azure Polices and then definitions, and search for *All Internet traffic should be routed via your deployed Azure Firewall* and open the definition.
+![image](images/AzurePolicyAzureFirewallRouting.png)
+
+Now you can look have the definition is defined, look for the section *PolicyRule* and first yopu have an *if* statment and the an action *then*.
+
+What do you think will happen when we assign the policy?
 
 ## Task 2: Assign Azure policy to control configuration of Virtual Network
+
+OK, now you need to assign the policy to a scope, it can be Management Group, Subscription or Resource Group. In this case it will be a Resource Group. 
 
 ## Task 2: Force Azure policy to take appliy
 
