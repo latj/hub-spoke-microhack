@@ -410,7 +410,18 @@ What do you think will happen when we assign the policy?
 
 OK, now you need to assign the policy to a scope, it can be Management Group, Subscription or Resource Group. In this case it will be a Resource Group. 
 
-## Task 2: Force Azure policy to take appliy
+## Task 3: Force Azure policy to take apply
+
+
+
+# Next step
+
+If you would like to understand more and follow Microsoft recommeded configuration, you can take a look at Cloud Adoption Framework(CAF) there is sections about [Best practices](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/) where you read more.
+In CAF it is a section about Azure Landing zones and design guidelines that can be good to understand, more info [here](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/enterprise-scale/design-guidelines)
+
+
+
+
 
 # Finished? Delete your lab
 
