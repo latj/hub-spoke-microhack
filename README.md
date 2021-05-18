@@ -11,11 +11,11 @@ Work in progress
 
 [Challenge 2: Understand routing and vNet peering](https://github.com/latj/hub-spoke-microhack#challenge-2-understand-routing-and-vnet-peering)
 
-[Challenge 3: Route traffic through Azure Firewall](https://github.com/latj/hub-spoke-microhack)
+[Challenge 3: Route traffic through Azure Firewall](https://github.com/latj/hub-spoke-microhack#challenge-3-route-traffic-through-azure-firewall)
 
-[Challenge 4: Monitoring](https://github.com/latj/hub-spoke-microhack)
+[Challenge 4: Monitoring](https://github.com/latj/hub-spoke-microhack#challenge-4-monitoring)
 
-[Challenge 5: Control network with Azure Policies](https://github.com/latj/hub-spoke-microhack)
+[Challenge 5: Control network with Azure Policies](https://github.com/latj/hub-spoke-microhack#challenge-5-control-network-with-azure-policies)
 
 # Introduction
 
