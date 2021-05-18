@@ -3,11 +3,11 @@
 Work in progress
 # Contents
 
-[MicroHack introduction](#Introduction)
+[MicroHack introduction](https://github.com/latj/hub-spoke-microhack#Introduction)
 
-[Pre-requisites](#Pre-requisites)
+[Pre-requisites](https://github.com/latj/hub-spoke-microhack#Pre-requisites)
 
-[Challenge 1: Understand Network Security Groups](challenge-1-understand-network-security-groups)
+[Challenge 1: Understand Network Security Groups](#challenge-1-understand-network-security-groups)
 
 [Challenge 2: Understand routing and vNet peering]()
 
