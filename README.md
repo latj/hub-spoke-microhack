@@ -325,7 +325,7 @@ Now check the routing for *vm-mgmt-server* by specifiying the nic *nic-mgmt-serv
     az network nic show-effective-route-table -g "hub-spoke-microhack" -n "nic-mgmt-server" --output table
 ````
 
-## Task 4: Implement policy with Azure Firewall rules to connect to Internet
+## Task 3: Implement policy with Azure Firewall rules to connect to Internet
 
 Configure Azure Firewall to implement the same access as before :
 
@@ -342,10 +342,10 @@ Confirm that you can now access by usering following command
 
 ![image](images/azfw-public-ip.png)
 
-## Task 5: Azure Firewall rules and route tables to connect between spokes and to on-prem
+## Task 4: Azure Firewall rules and route tables to connect between spokes and to on-prem
 
 
-## Task 6: Implement policy with Azure Firewall rules and route table for subnet to subnet traffic.
+## Task 5: Implement policy with Azure Firewall rules and route table for subnet to subnet traffic.
 
 To able to test this we need to have a subnets in the same vnet. So we will start to create an extra subnet in the spoke you created before. And we also create an VM in that subnet.
 
