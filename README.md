@@ -525,16 +525,27 @@ So in the Azure Portal navigate to the Azure Policy and then definitions, and cl
 ````
 - Click Save
 
-search for *All Internet traffic should be routed via your deployed Azure Firewall* and open the definition.
-![image](images/AzurePolicyAzureFirewallRouting.png)
-
-Now you can look have the definition is defined, look for the section *PolicyRule* and first yopu have an *if* statment and the an action *then*.
-
-What do you think will happen when we assign the policy?
-
 ## Task 2: Assign Azure policy to control configuration of Virtual Network
 
-OK, now you need to assign the policy to a scope, it can be Management Group, Subscription or Resource Group. In this case it will be a Resource Group. 
+OK, now you need to assign the policy to a scope, it can be Management Group, Subscription or Resource Group. In this case it will be a Resource Group. But first we create an emtry resource group, where to specify the scope to.
+
+````Bash
+    az group create -l EastUS -n spoke-microhack
+````
+Now we can assign the the policy to the newly created Resource Group, using the portal navigate to Azure policy and open the Policy definition you created before. In the top robbon click Assign.
+
+- Change th scope to the newly created resource group.
+- Click Next
+- Specify the parameters, 
+    Default route the IP-address of your Azure firewall (10.0.3.4)
+    VNet Region, the region where you have deployed your resources
+    Effect, leave it as *DeployIfNotExists*
+- Click *Review + create*
+
+
+
+
+
 
 ## Task 3: Force Azure policy to take apply
 
