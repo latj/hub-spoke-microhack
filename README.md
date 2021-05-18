@@ -553,7 +553,11 @@ You can monitor the status of the evaluation in the activity log of the resource
 
 While you are waiting you can read more about how the policies are triggered. [Evaluation triggers](https://docs.microsoft.com/en-us/azure/governance/policy/how-to/get-compliance-data)
 
-## Task 3: Force Azure policy to take apply
+## Task 3: Verify if Azure policy works
+
+Now you can verify that the poilcy working, you can do that by creating a new VNet in the Resource Group *spoke-microhack* with a subnet. After it been created you can check the activity log.
+And after some time a Route Table will be created in the Resouce Group, and it will be assign to the subnets.
+
 
 
 
