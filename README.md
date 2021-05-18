@@ -542,10 +542,16 @@ Now we can assign the the policy to the newly created Resource Group, using the 
   -  Effect, leave it as *DeployIfNotExists*
 - Click *Review + create*
 
+It normally takes around 30 minutes for a newly applied assignment to be applied. You speed up this process you can run following commad to manually trigger a evaluation scan.
 
+````Bash
+    az policy state trigger-scan --resource-group spoke-microhack
+````
+You can choose not to wait for the asynchronous process to complete before continuing with the no-wait parameter.
 
+You can monitor the status of the evaluation in the activity log of the resource group, it takes around 15 min.
 
-
+While you are waiting you can read more about how the policies are triggered. [Evaluation triggers](https://docs.microsoft.com/en-us/azure/governance/policy/how-to/get-compliance-data)
 
 ## Task 3: Force Azure policy to take apply
 
