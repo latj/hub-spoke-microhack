@@ -537,9 +537,9 @@ Now we can assign the the policy to the newly created Resource Group, using the 
 - Change th scope to the newly created resource group.
 - Click Next
 - Specify the parameters, 
-    Default route the IP-address of your Azure firewall (10.0.3.4)
-    VNet Region, the region where you have deployed your resources
-    Effect, leave it as *DeployIfNotExists*
+  -  Default route the IP-address of your Azure firewall (10.0.3.4)
+  -  VNet Region, the region where you have deployed your resources
+  -  Effect, leave it as *DeployIfNotExists*
 - Click *Review + create*
 
 
