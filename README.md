@@ -585,7 +585,8 @@ In the CAF you can find info about Azure Landing zones and design guidelines tha
 
 # Finished? Delete your lab
 
-- Delete the resource group hub-spoke-microhack and mock-prem-microsoft
+- Delete the resource group hub-spoke-microhack, mock-prem-microsoft and spoke-microhack
+- Remember to remove the Azure policy assignment and policy definition
 
 
 
