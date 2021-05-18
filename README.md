@@ -408,7 +408,7 @@ So in the Azure Portal navigate to the Azure Policy and then definitions, and cl
 - In the policy rule remove the default one. Copy and paste the policy below instead.
 
 ````json
-        "parameters": {
+    "parameters": {
       "defaultRoute": {
         "type": "String",
         "metadata": {
