@@ -7,7 +7,7 @@ Work in progress
 
 [Pre-requisites](#Pre-requisites)
 
-[Challenge 1: Understand Network Security Groups]()
+[Challenge 1: Understand Network Security Groups](challenge-1-understand-network-security-groups)
 
 [Challenge 2: Understand routing and vNet peering]()
 
