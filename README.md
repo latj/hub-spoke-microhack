@@ -394,12 +394,138 @@ With Azure Policy you can enforce organizational standards and to assess complia
 
 For more information, see [Azure Policy documentation.](https://docs.microsoft.com/en-us/azure/governance/policy/overview)
 
-Each policy definition in Azure Policy has a single effect. They can be Append, Audit, AuditIfNotExists, Deny, DeployIfNotExists, Disabled or Modify. In this task wil will only use AuditIfNotExists, so it will only audit. But it is possiable with DeployIfNotExists to deploy resources that are missing, for example NSG:s or Route Tables. More info [Understand Azure Policy effects](https://docs.microsoft.com/en-us/azure/governance/policy/concepts/effects) 
+Each policy definition in Azure Policy has a single effect. They can be Append, Audit, AuditIfNotExists, Deny, DeployIfNotExists, Disabled or Modify. In this task wil will only use DeployIfNotExists, so it will deploy resources that are missing, in this task a Route Table and assign it. More info [Understand Azure Policy effects](https://docs.microsoft.com/en-us/azure/governance/policy/concepts/effects) 
 
-## Task 1: Find Azure policy to control configuration of Virtual Network
-In the this task you will use a bulit-in policy definition named *All Internet traffic should be routed via your deployed Azure Firewall*, that will audit if route table isn't configured.
+## Task 1: Add Azure policy to control configuration of Virtual Network
+In the this task you will create a custom policy definition named *Deploy a user-defined route to a VNET with specific routes*, that will deploy a route table if it does not exist.
 
-So in the Azure Portal navigate to the Azure Polices and then definitions, and search for *All Internet traffic should be routed via your deployed Azure Firewall* and open the definition.
+So in the Azure Portal navigate to the Azure Policy and then definitions, and click on *+ Policy definition* to add a new.
+
+- sepcifiy the definition location, choose your subscription.
+- Specify the name *Deploy a user-defined route to a VNET with specific routes*
+- Add a description 
+- Choose an existing Category, *Network*
+- In the policy rule remove the default one. Copy and paste the policy below instead.
+
+````json
+        "parameters": {
+      "defaultRoute": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Default route to add into UDR",
+          "description": "Policy will deploy a default route table to a vnet"
+        }
+      },
+      "vnetRegion": {
+        "type": "String",
+        "metadata": {
+          "displayName": "VNet Region",
+          "description": "Regional VNet hub location",
+          "strongType": "location"
+        }
+      },
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/virtualNetworks"
+          },
+          {
+            "field": "location",
+            "equals": "[parameters('vnetRegion')]"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Network/routeTables",
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7"
+          ],
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "Microsoft.Network/routeTables/routes[*].nextHopIpAddress",
+                "equals": "[parameters('defaultRoute')]"
+              }
+            ]
+          },
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "parameters": {
+                "udrName": {
+                  "value": "[concat(field('name'),'-udr')]"
+                },
+                "udrLocation": {
+                  "value": "[field('location')]"
+                },
+                "defaultRoute": {
+                  "value": "[parameters('defaultRoute')]"
+                }
+              },
+              "template": {
+                "$schema": "http://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "udrName": {
+                    "type": "string"
+                  },
+                  "udrLocation": {
+                    "type": "string"
+                  },
+                  "defaultRoute": {
+                    "type": "string"
+                  }
+                },
+                "variables": {},
+                "resources": [
+                  {
+                    "type": "Microsoft.Network/routeTables",
+                    "name": "[parameters('udrName')]",
+                    "apiVersion": "2020-08-01",
+                    "location": "[parameters('udrLocation')]",
+                    "properties": {
+                      "routes": [
+                        {
+                          "name": "AzureFirewallRoute",
+                          "properties": {
+                            "addressPrefix": "0.0.0.0/0",
+                            "nextHopType": "VirtualAppliance",
+                            "nextHopIpAddress": "[parameters('defaultRoute')]"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "outputs": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+````
+- Click Save
+
+search for *All Internet traffic should be routed via your deployed Azure Firewall* and open the definition.
 ![image](images/AzurePolicyAzureFirewallRouting.png)
 
 Now you can look have the definition is defined, look for the section *PolicyRule* and first yopu have an *if* statment and the an action *then*.
