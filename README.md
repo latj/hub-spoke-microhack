@@ -7,8 +7,15 @@ Work in progress
 
 [Pre-requisites](#Pre-requisites)
 
+[Challenge 1: Understand Network Security Groups]()
 
+[Challenge 2: Understand routing and vNet peering]()
 
+[Challenge 3: Route traffic through Azure Firewall]()
+
+[Challenge 4: Monitoring]()
+
+[Challenge 5: Control network with Azure Policies]()
 
 # Introduction
 
