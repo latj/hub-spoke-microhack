@@ -7,15 +7,15 @@ Work in progress
 
 [Pre-requisites](https://github.com/latj/hub-spoke-microhack#Pre-requisites)
 
-[Challenge 1: Understand Network Security Groups](#challenge-1-understand-network-security-groups)
+[Challenge 1: Understand Network Security Groups](https://github.com/latj/hub-spoke-microhack#challenge-1-understand-network-security-groups)
 
-[Challenge 2: Understand routing and vNet peering]()
+[Challenge 2: Understand routing and vNet peering](https://github.com/latj/hub-spoke-microhack#challenge-2-understand-routing-and-vnet-peering)
 
-[Challenge 3: Route traffic through Azure Firewall]()
+[Challenge 3: Route traffic through Azure Firewall](https://github.com/latj/hub-spoke-microhack)
 
-[Challenge 4: Monitoring]()
+[Challenge 4: Monitoring](https://github.com/latj/hub-spoke-microhack)
 
-[Challenge 5: Control network with Azure Policies]()
+[Challenge 5: Control network with Azure Policies](https://github.com/latj/hub-spoke-microhack)
 
 # Introduction
 
