@@ -17,6 +17,11 @@ Work in progress
 
 [Challenge 5: Control network with Azure Policies](https://github.com/latj/hub-spoke-microhack#challenge-5-control-network-with-azure-policies)
 
+[Next step](https://github.com/latj/hub-spoke-microhack#next-step)
+
+[Finished? Delete your lab](https://github.com/latj/hub-spoke-microhack#finished-delete-your-lab)
+
+
 # Introduction
 
 Azure hub-spoke network topology can be a core component in a customer's Azure foundation. In [this article](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/enterprise-scale/network-topology-and-connectivity), the Enterprise Scale Framework explains how hub spoke may be used to create a network topology underpinning customer's foundation.
