@@ -210,28 +210,37 @@ az network watcher test-ip-flow \
   --resource-group hub-spoke-microhack
   ````
 
-:point_right: The result will show the following.
+:point_right: The result of the challange:
+- Network Security Groups NSG, can be used to filter inbound and outboind traffic to subnets and nic on VMs
+- Application Security Groups ASG, can simlify the NSG rule by definding groups of Application
+
+
+
 
 
 # Challenge 2: Understand routing and vNet peering 
 
-In this challenge we will work with routing and peering in Virtual Networks, we will start by adding one more spoke virtual network to the hub. 
+In this challenge we will work with routing and peering in Virtual Networks, we will start by adding one more spoke virtual network to the hub network.
  
 
 ## Task 1 : Deploy a new spoke Virtual Network
 
 In this task we need to create a new vnet, that can be done by using the portal or run the following command in your cloud shell session.
-When creating a Virtal Network you need to specify an address prefix 
+When creating a Virtual Network you need to specify an address prefix, that must be non overlapping ip-range, more info about [what address range can I use](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-faq#what-address-ranges-can-i-use-in-my-vnets)
 
-- Create a new spoke nvet named *vnet-spoke2* with a subnet named *snet-spoke-resources*.
+- Create a new spoke nvet named *vnet-spoke2* with a subnet named *snet-spoke-resources*, with the following command.
 
 ````Bash
-az network vnet create -g hub-spoke-microhack -n vnet-spoke2 --address-prefix 10.200.0.0/16 --subnet-name snet-spoke-resources --subnet-prefix 10.200.0.0/24
+az network vnet create -g hub-spoke-microhack \
+  -n vnet-spoke2 \
+  --address-prefix 10.200.0.0/16 \
+  --subnet-name snet-spoke-resources \
+  --subnet-prefix 10.200.0.0/24
 ````
 ## Task 2 : Peer the new spoke to hub
 
 Now we need to connect the the newly created with the hub vnet. That is done by peering them, it is done in two steps, first from spoke to hub, then from hub to spoke.
-in the case we will the spoke to be able to connect to onprem through VPN.
+in the case we will allow the spoke to be able to connect to onprem through VPN.
 More info about [Virtual Network peering](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview)  
 
 - Run the following command to peer the new spoke with hub
@@ -253,7 +262,7 @@ More info about [Virtual Network peering](https://docs.microsoft.com/en-us/azure
     --allow-gateway-transit
 ````
 
-- Create a VM in the new subnet/Virtual Network.
+- We need a new VM in the new VNET so we create one.
 
 
 ````Bash
