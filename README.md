@@ -82,9 +82,9 @@ To start the ARM deployment, follow the steps listed below:
 
 `az account show`
 
-  Chnage to your subscription if needed
+- Chnage to your subscription if needed
   
- `az account set --subscription mysubscription`
+`az account set --subscription mysubscription`
 
 - Start the deployment, you can change location to a region of choose.   
 
