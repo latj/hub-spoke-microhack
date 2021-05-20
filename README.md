@@ -37,9 +37,11 @@ Prior to starting this MicroHack, please familiarize yourself with routing in Az
 After completing this MicroHack you will:
 
 - Know how to build a hub-and-spoke topology in Azure
-- Understand routing with the hub-and-spoke architecture
+- Understand routing and security with the hub-and-spoke architecture
 - Understand how custom routing works and know how to build some custom routing scenarios
 - Understand how to user Azure Firewall in hub-and-spoke topology
+- Understand how to monitor the network and Azure Firewall
+- Understand how to use Azure Policy to Control Networks
 
 ## Lab
 
@@ -54,7 +56,7 @@ During the course of the MicroHack you will deploy an additional spokes, and man
 
 In order to use the MicroHack time most effectively, the following tasks should be completed prior to starting the session.
 
-With these pre-requisites in place, we can focus on building the differentiated knowledge in Azure Networking that is required when working with the product, rather than spending hours repeating relatively simple tasks such as setting up Virtual Networks and Virtual Machines. 
+With these pre-requisites in place, we can focus on building the differentiated knowledge in Azure Networking that is required when working with the products, rather than spending hours repeating relatively simple tasks such as setting up Virtual Networks and Virtual Machines. 
 
 At the end of the pre-requisites your base lab build looks as follows:
 
