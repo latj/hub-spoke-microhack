@@ -247,13 +247,13 @@ More info about [Virtual Network peering](https://docs.microsoft.com/en-us/azure
 
 ````Bash
     # Creates peering between vnets
-    az network vnet peering create --group hub-spoke-microhack  \
+    az network vnet peering create -g hub-spoke-microhack  \
     --name spoke2-hub-peer \
     --vnet-name vnet-spoke2 \
     --remote-vnet vnet-hub \
     --allow-vnet-access  \
     --use-remote-gateways
-    az network vnet peering create --group hub-spoke-microhack  \
+    az network vnet peering create -g hub-spoke-microhack  \
     --name hub-spoke-peer \
     --vnet-name vnet-hub \
     --remote-vnet vnet-spoke2 \
