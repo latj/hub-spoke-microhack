@@ -82,6 +82,10 @@ To start the ARM deployment, follow the steps listed below:
 
 `az account show`
 
+  Chnage to your subscription if needed
+  
+ `az account set --subscription mysubscription`
+
 - Start the deployment, you can change location to a region of choose.   
 
 `az deployment sub create     --template-uri https://raw.githubusercontent.com/latj/hub-spoke-microhack/master/azuredeploy.json --location eastus`
