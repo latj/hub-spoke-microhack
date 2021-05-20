@@ -110,23 +110,25 @@ Password: {as per above step}
 
 Azure Virtual Network (VNet) is the fundamental building block for your private network in Azure. VNet enables many types of Azure resources, such as Azure Virtual Machines (VM), to securely communicate with each other, the internet, and on-premises networks. VNet is similar to a traditional network that you'd operate in your own data center, but brings with it additional benefits of Azure's infrastructure such as scale, availability, and isolation.
 
-In the spoke vnet it is deployed a loadbalance and two VMs as backend pool. in this challange we will enable Network Security Groups (NSG) to filter the incomming traffic 
+In the spoke vnet it is deployed a loadbalancer and two VMs as backend pool. In this challange we will enable Network Security Groups (NSG) to filter the incomming traffic. 
 
 ## Task 1 : Control network access to VM with Network Security Groups
 
 In Azure you can use an Azure network security group (NSG) to filter network traffic to and from Azure resources in an Azure virtual network. A network security group contains security rules that allow or deny inbound network traffic to, or outbound network traffic from, several types of Azure resources. For each rule, you can specify source and destination, port, and protocol.
-A network security group can be associated on a subnet or on NIC on virtual machine.
+A network security group can be associated on a subnet or on a NIC of a virtual machine.
 More info about how it works [Network security group - how it works](https://docs.microsoft.com/en-us/azure/virtual-network/network-security-group-how-it-works)
 
-In this task we need to block traffic to the VMs in the spoke subnet on port 80 from all other subnets in Azure and OnPrem, but Allow HTTP(80) traffic to the loadbalancer.
+In this task we need to block traffic to the VMs in the spoke subnet on all ports except port 80.
 
-- that is allready exist an NSG that you can used .
+You can use the Azure Portal to configure this or just run the following commands in the Cloud Shell promt.
+
+- An NSG already exist that you can used .
 
 ````Bash
 az network nsg show -g "hub-spoke-microhack" -n "nsg-spoke-resources"
 ````
 
-- Create new inbouond rule allowing port 80 from onprem
+- Create new inbouond rule allowing port 80 from onprem with this command
 
 ````Bash
 az network nsg rule create --group "hub-spoke-microhack" \
@@ -137,7 +139,8 @@ az network nsg rule create --group "hub-spoke-microhack" \
   --source-port-ranges '*' \
   --destination-address-prefixes "VirtualNetwork" \
   --destination-port-ranges '80' \
-  --access Allow --protocol '*' \
+  --access Allow \
+  --protocol '*' \
   --description "Allow onprem subnet traffic on port 80"
 
 ````
@@ -168,11 +171,11 @@ az network vnet subnet update --group "hub-spoke-microhack"  \
 ````
 
 ## Task 2 : Verify the network access from VM 
-To verify if the right access i configured, test it from the VM in onprem vnet *vm-windows* 
+To verify if the right access is configured, test it from the VM in onprem vnet *vm-windows* 
 Do as follows; 
 Use Azure Bastion to access the desktop of *vm-windows*, 
 - Launch remote desktop (mstsc), and attempt a connection to *vm-web-server0* (IP address 10.100.0.5). You should not recieve the login prompt.
-- Lanuch a Internet Explorer and browse to *vm-web-server0* http://10.100.0.5 or *vm-web-server1* http://10.100.0.6 or *loadBalancer* http://10.100.0.4. and you will se the web page.
+- Lanuch a Internet Explorer and browse to *vm-web-server0* http://10.100.0.5 or *vm-web-server1* http://10.100.0.6 or *loadBalancer* http://10.100.0.4. and you will se the default web page.
 
 ## Task 3 : Verify the network access with NetworkWatcher 
 You can verify the access with the NetworkWatcher service in Azure, you can read more about the service [here](https://docs.microsoft.com/en-us/azure/network-watcher/network-watcher-monitoring-overview)
@@ -234,16 +237,35 @@ More info about [Virtual Network peering](https://docs.microsoft.com/en-us/azure
 
 ````Bash
     # Creates peering between vnets
-    az network vnet peering create -g hub-spoke-microhack  -n spoke2-hub-peer --vnet-name vnet-spoke2 --remote-vnet vnet-hub --allow-vnet-access  --use-remote-gateways
-    az network vnet peering create -g hub-spoke-microhack  -n hub-spoke-peer --vnet-name vnet-hub --remote-vnet vnet-spoke2 --allow-vnet-access --allow-forwarded-traffic --allow-gateway-transit
+    az network vnet peering create --group hub-spoke-microhack  \
+    --name spoke2-hub-peer \
+    --vnet-name vnet-spoke2 \
+    --remote-vnet vnet-hub \
+    --allow-vnet-access  \
+    --use-remote-gateways
+    az network vnet peering create --group hub-spoke-microhack  \
+    --name hub-spoke-peer \
+    --vnet-name vnet-hub \
+    --remote-vnet vnet-spoke2 \
+    --allow-vnet-access \
+    --allow-forwarded-traffic \
+    --allow-gateway-transit
 ````
 
 - Create a VM in the new subnet/Virtual Network.
 
 
 ````Bash
-    az network nic create --resource-group hub-spoke-microhack --name nic-mgmt-server --subnet snet-spoke-resources --private-ip-address 10.200.0.4 --vnet-name vnet-spoke2
-    az vm create  --resource-group hub-spoke-microhack --name vm-mgmt-server --image win2019datacenter --nics nic-mgmt-server --admin-username AzureAdmin
+    az network nic create --resource-group hub-spoke-microhack \
+    --name nic-mgmt-server \
+    --subnet snet-spoke-resources \
+    --private-ip-address 10.200.0.4 \
+    --vnet-name vnet-spoke2
+    az vm create  --resource-group hub-spoke-microhack \
+    --name vm-mgmt-server \
+    --image win2019datacenter \
+    --nics nic-mgmt-server \
+    --admin-username AzureAdmin
 ````
 
 - Verify that your can access the new VM as expected. The easiest way to do this is as follows; Once you have Azure Bastion access to the desktop of *vm-windows*, launch remote desktop (mstsc), and attempt a connection to *az-srv2-vm* (IP address 10.200.0.4). You should recieve the login prompt.
@@ -256,7 +278,9 @@ We will check the routing configuration of the first webserver in the spoke netw
 - Show the routing for vm *vm-web-server0* by specifiying the nic *nic-web-server0*.
 
 ````Bash
-    az network nic show-effective-route-table -g "hub-spoke-microhack" -n "nic-web-server0" --output table
+    az network nic show-effective-route-table -g "hub-spoke-microhack" \
+    -n "nic-web-server0" \
+    --output table
 ````
 
 ### :point_right: The result will show the following.
@@ -282,7 +306,9 @@ You can read more about routing in Azure [here](https://docs.microsoft.com/en-us
 - Now check the routing for  *vm-mgmt-server* by specifiying the nic *nic-mgmt-server*.
 
 ````Bash
-    az network nic show-effective-route-table -g "hub-spoke-microhack" -n "nic-mgmt-server" --output table
+    az network nic show-effective-route-table -g "hub-spoke-microhack" \
+    -n "nic-mgmt-server" \
+    --output table
 ````
 
 ### :point_right: Compare them and look for differernces
@@ -323,8 +349,14 @@ Now we have configured the route table, now we need to assign it, to each subnet
 
 ````Bash
     # assign routetable to subnets in spokes 
-    az network vnet subnet update -g "hub-spoke-microhack" -n snet-spoke-resources --vnet-name vnet-spoke --route-table spoke-routes
-    az network vnet subnet update -g "hub-spoke-microhack" -n snet-spoke-resources --vnet-name vnet-spoke2 --route-table spoke-routes
+    az network vnet subnet update -g "hub-spoke-microhack" \
+    -n snet-spoke-resources \
+    --vnet-name vnet-spoke \
+    --route-table spoke-routes
+    az network vnet subnet update -g "hub-spoke-microhack" \
+    -n snet-spoke-resources \
+    --vnet-name vnet-spoke2 \
+    --route-table spoke-routes
 
 ````
 
@@ -336,7 +368,10 @@ To assign the route table run the following command.
 
 ````Bash
     # assign routetable to gateway subnet
-    az network vnet subnet update -g "hub-spoke-microhack" -n GatewaySubnet --vnet-name vnet-hub --route-table gateway-routes
+    az network vnet subnet update -g "hub-spoke-microhack" \
+    -n GatewaySubnet \
+    --vnet-name vnet-hub \
+    --route-table gateway-routes
 ````
 
 :question: Verify if you still have connectivity to the internet from the *vm-mgmt-server*.
@@ -349,7 +384,9 @@ Connections are now being routed to Azure Firewall, which is running with the de
 Now check the routing for *vm-mgmt-server* by specifiying the nic *nic-mgmt-server* to se what have change after applying the route table.
 
 ````Bash
-    az network nic show-effective-route-table -g "hub-spoke-microhack" -n "nic-mgmt-server" --output table
+    az network nic show-effective-route-table -g "hub-spoke-microhack" \
+    -n "nic-mgmt-server" \
+    --output table
 ````
 
 ## Task 3: Implement policy with Azure Firewall rules to connect to Internet
@@ -381,31 +418,55 @@ You can use the following command.
 
 ````Bash
     # add subnet and routetable to that subnet
-    az network vnet subnet create -g "hub-spoke-microhack" --vnet-name vnet-spoke2 -n snet-spoke-resources2 \
-    --address-prefixes 10.200.1.0/24 --route-table spoke-routes
+    az network vnet subnet create -g "hub-spoke-microhack" \
+    --vnet-name vnet-spoke2 \
+    -n snet-spoke-resources2 \
+    --address-prefixes 10.200.1.0/24 \
+    --route-table spoke-routes
     # Create a VM nic in the new subnet
-    az network nic create --resource-group hub-spoke-microhack --name nic-mgmt-server2 --subnet snet-spoke-resources2 --private-ip-address 10.200.1.4 --vnet-name vnet-spoke2
+    az network nic create --resource-group hub-spoke-microhack \
+    --name nic-mgmt-server2 \
+    --subnet snet-spoke-resources2 \
+    --private-ip-address 10.200.1.4 \
+    --vnet-name vnet-spoke2
     # Create a VM connected to the newly created NIC
-    az vm create --resource-group hub-spoke-microhack --name vm-mgmt-server2 --image win2019datacenter --nics nic-mgmt-server2 --admin-username AzureAdmin
+    az vm create --resource-group hub-spoke-microhack \
+    --name vm-mgmt-server2 \
+    --image win2019datacenter \
+    --nics nic-mgmt-server2 \
+    --admin-username AzureAdmin
 ````
 
 If we look at effective route table for the newly created VM, it looks the same as the other VM in the other subnet
 
 ````Bash
     #show effective route table
-    az network nic show-effective-route-table -g "hub-spoke-microhack" -n "nic-mgmt-server2" --output table
-    az network nic show-effective-route-table -g "hub-spoke-microhack" -n "nic-mgmt-server2" --output table
+    az network nic show-effective-route-table -g "hub-spoke-microhack" \
+    -n "nic-mgmt-server2" \
+    --output table
+    az network nic show-effective-route-table -g "hub-spoke-microhack" \
+    -n "nic-mgmt-server2" \
+    --output table
 ````
 
-Apply an new route tabek for the
+Apply an new route table on the subnet
 
 
 ````Bash
-    az network route-table create -g"hub-spoke-microhack"  -n spoke2-res2-route
-    az network route-table route create -g "hub-spoke-microhack" --route-table-name spoke2-res2-route -n DefaultRoute \
-    --next-hop-type VirtualAppliance --address-prefix 0.0.0.0/0 --next-hop-ip-address 10.0.3.4
-     az network route-table route create -g "hub-spoke-microhack" --route-table-name spoke2-res2-route -n subnetRoute \
-    --next-hop-type VirtualAppliance --address-prefix 10.200.0.0/24 --next-hop-ip-address 10.0.3.4
+    az network route-table create -g "hub-spoke-microhack"  \
+      -n spoke2-res2-route
+    az network route-table route create -g "hub-spoke-microhack" \
+      --route-table-name spoke2-res2-route \
+      -n DefaultRoute \
+      --next-hop-type VirtualAppliance \
+      --address-prefix 0.0.0.0/0 \
+      --next-hop-ip-address 10.0.3.4
+     az network route-table route create -g "hub-spoke-microhack" \
+      --route-table-name spoke2-res2-route \
+      -n subnetRoute \
+      --next-hop-type VirtualAppliance \
+      --address-prefix 10.200.0.0/24 \
+      --next-hop-ip-address 10.0.3.4
 ````
 
 ## :checkered_flag: Results
