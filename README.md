@@ -210,6 +210,7 @@ az network watcher test-ip-flow \
   --resource-group hub-spoke-microhack
   ````
 
+:point_right: The result will show the following.
 
 
 # Challenge 2: Understand routing and vNet peering 
