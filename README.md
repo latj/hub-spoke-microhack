@@ -129,21 +129,42 @@ az network nsg show -g "hub-spoke-microhack" -n "nsg-spoke-resources"
 - Create new inbouond rule allowing port 80 from onprem
 
 ````Bash
-az network nsg rule create -g "hub-spoke-microhack" --nsg-name nsg-spoke-resources -n allow-http-traffic-from-onprem --priority 1100 --source-address-prefixes "192.168.0.0/16" --source-port-ranges '*' --destination-address-prefixes "VirtualNetwork" --destination-port-ranges '80' --access Allow --protocol '*' --description "Allow onprem subnet traffic on port 80"
+az network nsg rule create --group "hub-spoke-microhack" \
+  --nsg-name nsg-spoke-resources \
+  --name allow-http-traffic-from-onprem \
+  --priority 1100 \
+  --source-address-prefixes "192.168.0.0/16" \
+  --source-port-ranges '*' \
+  --destination-address-prefixes "VirtualNetwork" \
+  --destination-port-ranges '80' \
+  --access Allow --protocol '*' \
+  --description "Allow onprem subnet traffic on port 80"
 
 ````
 
 - Create new inbouond rule denying all traffic from onprem
 
 ````Bash
-az network nsg rule create -g "hub-spoke-microhack" --nsg-name nsg-spoke-resources -n deny-all-traffic-from-onprem --priority 1110 --source-address-prefixes "192.168.0.0/16" --source-port-ranges '*' --destination-address-prefixes "VirtualNetwork" --destination-port-ranges '*' --access Deny --protocol '*' --description "Deny onprem subnet traffic"
+az network nsg rule create --group "hub-spoke-microhack" \
+  --nsg-name nsg-spoke-resources \
+  --name deny-all-traffic-from-onprem \
+  --priority 1110 \
+  --source-address-prefixes "192.168.0.0/16" \
+  --source-port-ranges '*' \
+  --destination-address-prefixes "VirtualNetwork" \
+  --destination-port-ranges '*' \
+  --access Deny \
+  --protocol '*' \--description "Deny onprem subnet traffic"
 
 ````
 
 - Assign the NSG to the subnet 'snet-spoke-resources'in spoke 'vnet-spoke'.
 
 ````Bash
-az network vnet subnet update -g "hub-spoke-microhack"  -n "snet-spoke-resources" --vnet-name vnet-spoke --network-security-group nsg-spoke-resources
+az network vnet subnet update --group "hub-spoke-microhack"  \
+  --name "snet-spoke-resources" \
+  --vnet-name vnet-spoke \
+  --network-security-group nsg-spoke-resources
 ````
 
 ## Task 2 : Verify the network access from VM 
