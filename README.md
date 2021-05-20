@@ -131,7 +131,7 @@ az network nsg show -g "hub-spoke-microhack" -n "nsg-spoke-resources"
 - Create new inbouond rule allowing port 80 from onprem with this command
 
 ````Bash
-az network nsg rule create --group "hub-spoke-microhack" \
+az network nsg rule create -g "hub-spoke-microhack" \
   --nsg-name nsg-spoke-resources \
   --name allow-http-traffic-from-onprem \
   --priority 1100 \
@@ -148,7 +148,7 @@ az network nsg rule create --group "hub-spoke-microhack" \
 - Create new inbouond rule denying all traffic from onprem
 
 ````Bash
-az network nsg rule create --group "hub-spoke-microhack" \
+az network nsg rule create -g "hub-spoke-microhack" \
   --nsg-name nsg-spoke-resources \
   --name deny-all-traffic-from-onprem \
   --priority 1110 \
@@ -164,7 +164,7 @@ az network nsg rule create --group "hub-spoke-microhack" \
 - Assign the NSG to the subnet 'snet-spoke-resources'in spoke 'vnet-spoke'.
 
 ````Bash
-az network vnet subnet update --group "hub-spoke-microhack"  \
+az network vnet subnet update -g "hub-spoke-microhack"  \
   --name "snet-spoke-resources" \
   --vnet-name vnet-spoke \
   --network-security-group nsg-spoke-resources
