@@ -262,7 +262,7 @@ More info about [Virtual Network peering](https://docs.microsoft.com/en-us/azure
     --allow-gateway-transit
 ````
 
-- We need a new VM in the new VNET so we create one.
+- We need a new VM in the new VNET so we create one. Yuo need to specify the password for the AzureAdmin user.
 
 
 ````Bash
