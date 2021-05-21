@@ -128,9 +128,9 @@ You can use the Azure Portal to configure this or just run the following command
 az network nsg show -g "hub-spoke-microhack" -n "nsg-spoke-resources"
 ````
 
-- Create new inbouond rule allowing port 80 from onprem with this command
+- Create new inbound rule allowing port 80 from onprem with this command
 
-````PowerShell
+````Bash
 az network nsg rule create -g "hub-spoke-microhack" \
   --nsg-name nsg-spoke-resources \
   --name allow-http-traffic-from-onprem \
@@ -145,7 +145,7 @@ az network nsg rule create -g "hub-spoke-microhack" \
 
 ````
 
-- Create new inbouond rule denying all traffic from onprem
+- Create new inbound rule denying all traffic from onprem
 
 ````Bash
 az network nsg rule create -g "hub-spoke-microhack" \
