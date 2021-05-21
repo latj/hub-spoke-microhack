@@ -547,7 +547,7 @@ This page provides a view by rule action – allow/deny, target port by IP and D
 
 You can look at the logs and understand more about the resource based on the source IP address. You can get information like virtual machine name and network interface name. It's simple to filter to the resource from the logs.
 
-![image](images/azworkbook-investigations.png)
+![image](images/azworkbook-investigation.png)
 
 
 
