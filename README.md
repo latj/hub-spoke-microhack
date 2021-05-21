@@ -501,20 +501,21 @@ In the Azure Portal open Azure Monitor Network Insights Overview page
 Azure Network Watcher provides tools to monitor, diagnose, view metrics, and enable or disable logs for resources in an Azure virtual network. Network Watcher is designed to monitor and repair the network health of IaaS (Infrastructure-as-a-Service) products which includes Virtual Machines, Virtual Networks, Application Gateways, Load balancers, etc. Note: It is not intended for and will not work for PaaS monitoring or Web analytics.
 
 When you create a VM, Azure allows and denies network traffic to and from the VM, by default. You might later override Azure's defaults, allowing or denying additional types of traffic.
-1.	In the portal, select All services. In the All services Filter box, enter Network Watcher. When Network Watcher appears in the results, select it.
-2.	Select IP flow verify, under NETWORK DIAGNOSTIC TOOLS.
-3.	Select your subscription, enter or select the following values, and then select Check, as shown in the picture that follows
+1.	In the portal, select **All services**. In the **All services** Filter box, enter *Network Watcher*. When **Network Watcher** appears in the results, select it.
+2.	Select **IP flow verify**, under **NETWORK DIAGNOSTIC TOOLS**.
+3.	Select your subscription, enter or select the following values, and then select **Check**, as shown in the picture that follows
 
 If no NSG is applied following error will occure
 
 Error code: NsgsNotAppliedOnNic
-Error message: No NSG applied on nic to allow or block traffic, nic id /subscriptions/d5093cfe-bc6b-4a59-aace-77489bcf9f56/resourceGroups/hub-spoke-microhack/providers/Microsoft.Network/networkInterfaces/nic-mgmt-server.
+*Error message: No NSG applied on nic to allow or block traffic, nic id /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/hub-spoke-microhack/providers/Microsoft.Network/networkInterfaces/nic-mgmt-server.*
 
 
-View details of a security rule
-1.	To determine why the rules in steps 3-5 of Use IP flow verify allow or deny communication, review the effective security rules for the network interface in the VM. In the search box at the top of the portal, enter myvm. When the myvm (or whatever the name of your network interface is) network interface appears in the search results, select it.
-2.	Select Effective security rules under SUPPORT + TROUBLESHOOTING, as shown in the following picture:
+###View details of a security rule
+1.	To determine why the rules in steps 3-5 of **Use IP flow verify** allow or deny communication, review the effective security rules for the network interface in the VM. In the search box at the top of the portal, enter *myvm*. When the **myvm** (or whatever the name of your network interface is) network interface appears in the search results, select it.
+2.	Select **Effective security rules** under **SUPPORT + TROUBLESHOOTING**, as shown in the following picture:
 
+###View details of a next hop
 
 
 ## Task 3: Workbook Azure Firewall
