@@ -130,7 +130,7 @@ az network nsg show -g "hub-spoke-microhack" -n "nsg-spoke-resources"
 
 - Create new inbouond rule allowing port 80 from onprem with this command
 
-````Bash
+````PowerShell
 az network nsg rule create -g "hub-spoke-microhack" \
   --nsg-name nsg-spoke-resources \
   --name allow-http-traffic-from-onprem \
