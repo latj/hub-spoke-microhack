@@ -525,6 +525,32 @@ Error code: NsgsNotAppliedOnNic
 
 ## Task 3: Workbook Azure Firewall
 
+### Overview page
+
+The overview page provides you with a way to filter across workspaces, time, and firewalls. It shows events by time across firewalls and log types (application, networks, threat intel, DNS proxy).
+
+![image](images/azworkbook-overview.png)
+
+### Application rule log statistics
+
+This page shows unique sources of IP address over time, application rule count usage, denied/allowed FQDN over time, and filtered data. You can filter data based on IP address.
+
+![image](images/azworkbook-app-rule.png)
+
+### Network rule log statistics
+
+This page provides a view by rule action – allow/deny, target port by IP and DNAT over time. You can also filter by action, port, and destination type.
+
+![image](images/azworkbook-network-rule.png)
+
+### Investigations
+
+You can look at the logs and understand more about the resource based on the source IP address. You can get information like virtual machine name and network interface name. It's simple to filter to the resource from the logs.
+
+![image](images/azworkbook-investigations.png)
+
+
+
 # Challenge 5: Control network with Azure Policies
 With Azure Policy you can enforce organizational standards and to assess compliance at-scale. Common use cases for Azure Policy include implementing governance for resource consistency, regulatory compliance, security, cost, and management. Policy definitions for these common use cases are already available in your Azure environment as built-ins to help you get started. But you can also crate your own Azure Policy
 
