@@ -505,7 +505,7 @@ When you create a VM, Azure allows and denies network traffic to and from the VM
 2.	Select **IP flow verify**, under **NETWORK DIAGNOSTIC TOOLS**.
 3.	Select your subscription, enter or select the following values, and then select **Check**, as shown in the picture that follows
 
-![image](images/azfw-public-ip.png)
+![image](images/networkwatcher-ipflow.png)
 
 If no NSG is applied following error will occure
 
@@ -517,11 +517,11 @@ Error code: NsgsNotAppliedOnNic
 1.	To determine why the rules in steps 3-5 of **Use IP flow verify** allow or deny communication, review the effective security rules for the network interface in the VM. In the search box at the top of the portal, enter *myvm*. When the **myvm** (or whatever the name of your network interface is) network interface appears in the search results, select it.
 2.	Select **Effective security rules** under **SUPPORT + TROUBLESHOOTING**, as shown in the following picture:
 
-![image](images/azfw-public-ip.png)
+![image](images/effectivesecurity-rules.png)
 
 ### View details of a next hop
 
-![image](images/azfw-public-ip.png)
+![image](images/networkwatcher-nexthop.png)
 
 ## Task 3: Workbook Azure Firewall
 
