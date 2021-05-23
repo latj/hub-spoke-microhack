@@ -412,11 +412,11 @@ You will add an Application rule to allow the servers in *vnet-spoke2* to access
   az network firewall policy rule-collection-group create --name ApplicationCollGroupAzureFirewall \
     --policy-name azurefirewallPolicy \
     --resource-group hub-spoke-microhack \
-    --priority 110
+    --priority 100
   az network firewall policy rule-collection-group collection add-filter-collection -g hub-spoke-microhack \
     --policy-name azurefirewallPolicy \
     --rule-collection-group-name ApplicationCollGroupAzureFirewall  \
-    --name Filter-Collection \
+    --name Application-Collection \
     --action Allow \
     --rule-name Allow-Microsoft \
     --rule-type ApplicationRule \
