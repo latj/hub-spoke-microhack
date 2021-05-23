@@ -432,7 +432,10 @@ In Azure Firewall you can also configure predefined fqdn tag for function like W
 - To be able update VMs with Security Pacthes you need to Allow them to communicate to Windows Update, run the following command.
 
 ````Bash
-az network firewall policy rule-collection-group collection add-filter-collection -g hub-spoke-microhack \
+
+# Error!!!
+az network firewall policy rule-collection-group collection rule add -g hub-spoke-microhack \
+    --collection-name Application-Collection \
     --policy-name azurefirewallPolicy \
     --rule-collection-group-name ApplicationCollGroupAzureFirewall  \
     --name Application-Collection \
@@ -441,7 +444,7 @@ az network firewall policy rule-collection-group collection add-filter-collectio
     --rule-type ApplicationRule \
     --source-addresses "10.200.0.0/16" \
     --protocols Https=443 \
-    --fqdns-tags "WindowsUpdate" \
+    --fqdn-tags WindowsUpdate \
     --collection-priority 100
 ````
 
@@ -453,7 +456,7 @@ In this task we will create Network rules, so we can control traffic beween spok
 
 to Allow traffic we need first to create a Network rule collection, and then add the network rule, you can use the commad below to create a rule that allow http traffic from **nvet-spoke2** (10.200.0.0/16) to **lb-internal** (10.100.0.4)
 
-````PowerShell
+````BAsh
   
   az network firewall policy rule-collection-group create --name NetworkCollGroupAzureFirewall \
     --policy-name azurefirewallPolicy \
@@ -461,13 +464,14 @@ to Allow traffic we need first to create a Network rule collection, and then add
      --priority 200
   az network firewall policy rule-collection-group collection add-filter-collection -g hub-spoke-microhack \
     --policy-name azurefirewallPolicy \
-    --rule-collection-group-name ApplicationCollGroupAzureFirewall  \
+    --rule-collection-group-name NetworkCollGroupAzureFirewall  \
     --name Network-Collection \
     --action Deny \
     --rule-name Deny-http80 \
     --rule-type NetworkRule \
     --source-addresses "10.200.0.0/16" \
-    --protocols Http=80  \
+    --destination-ports 80 \
+    --ip-protocols TCP UDP \
     --destination-addresses "10.100.0.0/16"  \
     --collection-priority 200
 ````
