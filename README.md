@@ -401,13 +401,47 @@ Now check the routing for *vm-mgmt-server* by specifiying the nic *nic-mgmt-serv
 
 ## Task 3: Implement policy with Azure Firewall rules to connect to Internet
 
-In this task you will start to configure Appliction rules to allow traffic to Internet, in this senario we are using Azure Firewall with Azure Firewall Policy 
+In this task you will start to configure Appliction rules to allow traffic to Internet, in this senario we are using Azure Firewall with Azure Firewall Policy, more info. 
+
+You will add an Application rule to allow the servers in *vnet-spoke2* to access microsoft.com
+
+- We will start to create the Appliaction rule, because this is the first rule, we need to create a Collection Group and Application rule collection first, note that this command is PowerShell not Azure CLI
+
+````PowerShell
+  $fwpol = get-AzFirewallPolicy -Name azurefirewallpolicy -ResourceGroupName hub-spoke-microhack
+  $RCGroup = New-AzFirewallPolicyRuleCollectionGroup -Name AppRCGroup -Priority 100 -FirewallPolicyObject $fwpol
+  $apprule1 = New-AzFirewallPolicyApplicationRule -Name Allow-microsoft -SourceAddress "10.200.0.0/16" -Protocol "http:80","https:443" -TargetFqdn *.microsoft.com
+  $appcoll1 = New-AzFirewallPolicyFilterRuleCollection -Name App-coll01 -Priority 100 -Rule $appRule1 -ActionType "Allow"
+  Set-AzFirewallPolicyRuleCollectionGroup -Name $RCGroup.Name -Priority 100 -RuleCollection $appcoll1 -FirewallPolicyObject $fwPol
+````
+Now you can verify if the rule is working. If you test to browse to https://docs.microsoft.com from the VM *vm-mgmt-server*
+
+In Azure Firewall you can also configure predefined fqdn tag for function like WindowsUpdate, WindowsDianostics, Azure Abckup and more see link for [info](https://docs.microsoft.com/en-us/azure/firewall/fqdn-tags)
+
+- To be able update or VMs with Security Pacthes you need to Allow them to communicate to Windows Update, run the following command.
+
+````PowerShell
+  $fwpol = get-AzFirewallPolicy -Name azurefirewallpolicy -ResourceGroupName hub-spoke-microhack
+  $apprule2 = New-AzFirewallPolicyApplicationRule -Name Allow-WindowsUpdate -SourceAddress "10.200.0.0/16" -Protocol "https:443" -FqdnTag WindowsUpdate
+  $appcoll1 = New-AzFirewallPolicyFilterRuleCollection -Name App-coll01 -Priority 101 -Rule $appRule2 -ActionType "Allow"
+  Set-AzFirewallPolicyRuleCollectionGroup -Name $RCGroup.Name -Priority 101 -RuleCollection $appcoll1 -FirewallPolicyObject $fwPol
+````
 
 
-![image](images/azfw-public-ip.png)
 
 ## Task 4: Azure Firewall rules and route tables to connect between spokes and to on-prem
 
+In this task we will create Network rules, so we can control traffic beween spokes, on or case allow traffoce from **vnet-spoke2** to the *loadbalancer* in **vnet-spoke**
+
+to Allow traffic we need first to create a Network rule collection, and then add the network rule, you can use the commad below to create a rule that allow http traffic from **nvet-spoke2** (10.200.0.0/16) to **lb-internal** (10.100.0.4)
+
+````PowerShell
+  $fwpol = get-AzFirewallPolicy -Name azurefirewallpolicy -ResourceGroupName hub-spoke-microhack -Location eastus
+  $RCGroup = New-AzFirewallPolicyRuleCollectionGroup -Name AppRCGroup -Priority 100 -FirewallPolicyObject $fwpol
+  $apprule1 = New-AzFirewallPolicyApplicationRule -Name Allow-microsoft -SourceAddress "10.200.0.0/16" -Protocol "http:80","https:443" -TargetFqdn *.microsoft.com
+  $appcoll1 = New-AzFirewallPolicyFilterRuleCollection -Name App-coll01 -Priority 100 -Rule $appRule1 -ActionType "Allow"
+  Set-AzFirewallPolicyRuleCollectionGroup -Name $RCGroup.Name -Priority 100 -RuleCollection $appcoll1 -FirewallPolicyObject $fwPol
+````
 
 ## Task 5: Implement policy with Azure Firewall rules and route table for subnet to subnet traffic.
 
@@ -519,7 +553,7 @@ In this senario an Azure workbook is already deployed, you can find it in the **
 
 ![image](images/workbook-azurefirewall.png)
 
-When you open the Workbook you need to specify the workspace in **hub-spoke-microhack** resource group
+When you open the Workbook you need to specify the workspace in **hub-spoke-microhack** resource group and the **Azure Firewall**
 
 ### Overview page
 
