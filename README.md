@@ -422,9 +422,9 @@ In Azure Firewall you can also configure predefined fqdn tag for function like W
 
 ````PowerShell
   $fwpol = get-AzFirewallPolicy -Name azurefirewallpolicy -ResourceGroupName hub-spoke-microhack
-  $apprule2 = New-AzFirewallPolicyApplicationRule -Name Allow-WindowsUpdate -SourceAddress "10.200.0.0/16" -Protocol "https:443" -FqdnTag WindowsUpdate
-  $appcoll1 = New-AzFirewallPolicyFilterRuleCollection -Name App-coll01 -Priority 101 -Rule $appRule2 -ActionType "Allow"
-  Set-AzFirewallPolicyRuleCollectionGroup -Name $RCGroup.Name -Priority 101 -RuleCollection $appcoll1 -FirewallPolicyObject $fwPol
+  $apprule2 = New-AzFirewallPolicyApplicationRule -Name Allow-WindowsUpdate -SourceAddress "10.200.0.0/16" -FqdnTag WindowsUpdate
+  $appcoll1 = Set-AzFirewallPolicyFilterRuleCollection -Name App-coll01 -Priority 100 -Rule $appRule2 -ActionType "Allow"
+  Set-AzFirewallPolicyRuleCollectionGroup -Name $RCGroup.Name -Priority 100 -RuleCollection $appcoll1 -FirewallPolicyObject $fwPol
 ````
 
 
