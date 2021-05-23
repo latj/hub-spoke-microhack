@@ -445,9 +445,9 @@ to Allow traffic we need first to create a Network rule collection, and then add
 
 ## Task 5: Implement policy with Azure Firewall rules and route table for subnet to subnet traffic.
 
-To able to test this we need to have a subnets in the same vnet. So we will start to create an extra subnet in the spoke you created before. And we also create an VM in that subnet.
+In this task you send traffic to an other subnet in the same VNet to the firewall. To able to test this we need to have a new subnets in the same vnet. So we will start to create an extra subnet in the spoke you created before. And we also create an VM in that subnet.
 
-You can use the following command.
+You can use the following commands to create a new *subnet* in **vnet-spoke2**
 
 
 ````Bash
@@ -476,14 +476,17 @@ If we look at effective route table for the newly created VM, it looks the same 
 ````Bash
     #show effective route table
     az network nic show-effective-route-table -g "hub-spoke-microhack" \
-    -n "nic-mgmt-server2" \
+    -n "nic-mgmt-server" \
     --output table
     az network nic show-effective-route-table -g "hub-spoke-microhack" \
     -n "nic-mgmt-server2" \
     --output table
 ````
 
-Apply an new route table on the subnet
+If you check the effective route table it says **10.200.0.0/16 Vnetlocal** that mean that the traffic will go directlly to destination and do not through the firewall. So to be able to do that we need to create a more specific route for the each sunet.
+
+
+- So first you ceate a new route table for the subnet. And you see a second route for *10.200.0.0/24* to *10.0.3.4*
 
 
 ````Bash
@@ -502,6 +505,17 @@ Apply an new route table on the subnet
       --address-prefix 10.200.0.0/24 \
       --next-hop-ip-address 10.0.3.4
 ````
+
+Now we need to assign the new route table to the subnet, but only one route table can be assigned, so first we need to unassign the other one. Se command below.
+
+````Bash
+    # assign routetable to subnets in spokes 
+    az network vnet subnet update -g "hub-spoke-microhack" \
+    -n snet-spoke-resources2 \
+    --vnet-name vnet-spoke2 \
+    --route-table spoke2-res2-route
+````
+
 
 ## :checkered_flag: Results
 
