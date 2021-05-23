@@ -405,26 +405,43 @@ In this task you will start to configure Appliction rules to allow traffic to In
 
 You will add an Application rule to allow the servers in *vnet-spoke2* to access microsoft.com
 
-- We will start to create the Appliaction rule, because this is the first rule, we need to create a Collection Group and Application rule collection first, note that this command is PowerShell not Azure CLI
+- We will start to create the Appliaction rule, because this is the first rule, we need to create a Collection Group first, and the the Application Rule Collection.
 
-````PowerShell
-  $fwpol = get-AzFirewallPolicy -Name azurefirewallpolicy -ResourceGroupName hub-spoke-microhack
-  $RCGroup = New-AzFirewallPolicyRuleCollectionGroup -Name AppRCGroup -Priority 100 -FirewallPolicyObject $fwpol
-  $apprule1 = New-AzFirewallPolicyApplicationRule -Name Allow-microsoft -SourceAddress "10.200.0.0/16" -Protocol "http:80","https:443" -TargetFqdn *.microsoft.com
-  $appcoll1 = New-AzFirewallPolicyFilterRuleCollection -Name App-coll01 -Priority 100 -Rule $appRule1 -ActionType "Allow"
-  Set-AzFirewallPolicyRuleCollectionGroup -Name $RCGroup.Name -Priority 100 -RuleCollection $appcoll1 -FirewallPolicyObject $fwPol
+````Bash
+  # create Collection Group
+  az network firewall policy rule-collection-group create --name ApplicationCollGroupAzureFirewall \
+    --policy-name azurefirewallPolicy \
+    --resource-group hub-spoke-microhack
+  az network firewall policy rule-collection-group collection add-filter-collection -g hub-spoke-microhack \
+    --policy-name azurefirewallPolicy \
+    --rule-collection-group-name ApplicationCollGroupAzureFirewall  \
+    --name Filter-Collection \
+    --action Allow \
+    --rule-name Allow-Microsoft \
+    --rule-type ApplicationRule \
+    --source-addresses "10.200.0.0/16" \
+    --protocols Http=80 Https=443 \
+    --target-fqdns "*.microsoft.com" \
+    --collection-priority 100
 ````
 Now you can verify if the rule is working. If you test to browse to https://docs.microsoft.com from the VM *vm-mgmt-server*
 
 In Azure Firewall you can also configure predefined fqdn tag for function like WindowsUpdate, WindowsDianostics, Azure Abckup and more see link for [info](https://docs.microsoft.com/en-us/azure/firewall/fqdn-tags)
 
-- To be able update or VMs with Security Pacthes you need to Allow them to communicate to Windows Update, run the following command.
+- To be able update VMs with Security Pacthes you need to Allow them to communicate to Windows Update, run the following command.
 
-````PowerShell
-  $fwpol = get-AzFirewallPolicy -Name azurefirewallpolicy -ResourceGroupName hub-spoke-microhack
-  $apprule2 = New-AzFirewallPolicyApplicationRule -Name Allow-WindowsUpdate -SourceAddress "10.200.0.0/16" -FqdnTag WindowsUpdate
-  $appcoll1 = Set-AzFirewallPolicyFilterRuleCollection -Name App-coll01 -Priority 100 -Rule $appRule2 -ActionType "Allow"
-  Set-AzFirewallPolicyRuleCollectionGroup -Name $RCGroup.Name -Priority 100 -RuleCollection $appcoll1 -FirewallPolicyObject $fwPol
+````Bash
+az network firewall policy rule-collection-group collection add-filter-collection -g hub-spoke-microhack \
+    --policy-name azurefirewallPolicy \
+    --rule-collection-group-name ApplicationCollGroupAzureFirewall  \
+    --name Application-Collection \
+    --action Allow \
+    --rule-name Allow-WindowsUpdate \
+    --rule-type ApplicationRule \
+    --source-addresses "10.200.0.0/16" \
+    --protocols Https=443 \
+    --fqdns-tags "WindowsUpdate" \
+    --collection-priority 100
 ````
 
 
@@ -436,11 +453,21 @@ In this task we will create Network rules, so we can control traffic beween spok
 to Allow traffic we need first to create a Network rule collection, and then add the network rule, you can use the commad below to create a rule that allow http traffic from **nvet-spoke2** (10.200.0.0/16) to **lb-internal** (10.100.0.4)
 
 ````PowerShell
-  $fwpol = get-AzFirewallPolicy -Name azurefirewallpolicy -ResourceGroupName hub-spoke-microhack -Location eastus
-  $RCGroup = New-AzFirewallPolicyRuleCollectionGroup -Name AppRCGroup -Priority 100 -FirewallPolicyObject $fwpol
-  $apprule1 = New-AzFirewallPolicyApplicationRule -Name Allow-microsoft -SourceAddress "10.200.0.0/16" -Protocol "http:80","https:443" -TargetFqdn *.microsoft.com
-  $appcoll1 = New-AzFirewallPolicyFilterRuleCollection -Name App-coll01 -Priority 100 -Rule $appRule1 -ActionType "Allow"
-  Set-AzFirewallPolicyRuleCollectionGroup -Name $RCGroup.Name -Priority 100 -RuleCollection $appcoll1 -FirewallPolicyObject $fwPol
+  # create Collection Group
+  az network firewall policy rule-collection-group create --name NetworkCollGroupAzureFirewall \
+    --policy-name azurefirewallPolicy \
+    --resource-group hub-spoke-microhack
+  az network firewall policy rule-collection-group collection add-filter-collection -g hub-spoke-microhack \
+    --policy-name azurefirewallPolicy \
+    --rule-collection-group-name ApplicationCollGroupAzureFirewall  \
+    --name Network-Collection \
+    --action Deny \
+    --rule-name Deny-http80 \
+    --rule-type NetworkRule \
+    --source-addresses "10.200.0.0/16" \
+    --protocols Http=80  \
+    --destination-addresses "10.100.0.0/16"  \
+    --collection-priority 200
 ````
 
 ## Task 5: Implement policy with Azure Firewall rules and route table for subnet to subnet traffic.
