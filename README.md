@@ -506,7 +506,7 @@ If you check the effective route table it says **10.200.0.0/16 Vnetlocal** that 
       --next-hop-ip-address 10.0.3.4
 ````
 
-Now we need to assign the new route table to the subnet, but only one route table can be assigned, so first we need to unassign the other one. Se command below.
+- Now we need to assign the new route table to the subnet, but only one route table can be assigned, so first we need to unassign the other one. Se command below.
 
 ````Bash
     # assign routetable to subnets in spokes 
@@ -515,7 +515,29 @@ Now we need to assign the new route table to the subnet, but only one route tabl
     --vnet-name vnet-spoke2 \
     --route-table spoke2-res2-route
 ````
+- Ok now we have configured the routing from one side and now we need to configure from the other side.
 
+````Bash
+    az network route-table create -g "hub-spoke-microhack"  \
+      -n spoke2-res-route
+    az network route-table route create -g "hub-spoke-microhack" \
+      --route-table-name spoke2-res2-route \
+      -n DefaultRoute \
+      --next-hop-type VirtualAppliance \
+      --address-prefix 0.0.0.0/0 \
+      --next-hop-ip-address 10.0.3.4
+     az network route-table route create -g "hub-spoke-microhack" \
+      --route-table-name spoke2-res2-route \
+      -n subnetRoute \
+      --next-hop-type VirtualAppliance \
+      --address-prefix 10.200.1.0/24 \
+      --next-hop-ip-address 10.0.3.4
+          # assign routetable to subnets in spokes 
+    az network vnet subnet update -g "hub-spoke-microhack" \
+    -n snet-spoke-resources \
+    --vnet-name vnet-spoke2 \
+    --route-table spoke2-res-route
+````
 
 ## :checkered_flag: Results
 
