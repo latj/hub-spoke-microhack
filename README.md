@@ -408,10 +408,11 @@ You will add an Application rule to allow the servers in *vnet-spoke2* to access
 - We will start to create the Appliaction rule, because this is the first rule, we need to create a Collection Group first, and the the Application Rule Collection.
 
 ````Bash
-  # create Collection Group
+  
   az network firewall policy rule-collection-group create --name ApplicationCollGroupAzureFirewall \
     --policy-name azurefirewallPolicy \
-    --resource-group hub-spoke-microhack
+    --resource-group hub-spoke-microhack \
+    --priority 110
   az network firewall policy rule-collection-group collection add-filter-collection -g hub-spoke-microhack \
     --policy-name azurefirewallPolicy \
     --rule-collection-group-name ApplicationCollGroupAzureFirewall  \
@@ -453,10 +454,11 @@ In this task we will create Network rules, so we can control traffic beween spok
 to Allow traffic we need first to create a Network rule collection, and then add the network rule, you can use the commad below to create a rule that allow http traffic from **nvet-spoke2** (10.200.0.0/16) to **lb-internal** (10.100.0.4)
 
 ````PowerShell
-  # create Collection Group
+  
   az network firewall policy rule-collection-group create --name NetworkCollGroupAzureFirewall \
     --policy-name azurefirewallPolicy \
-    --resource-group hub-spoke-microhack
+    --resource-group hub-spoke-microhack \
+     --priority 200
   az network firewall policy rule-collection-group collection add-filter-collection -g hub-spoke-microhack \
     --policy-name azurefirewallPolicy \
     --rule-collection-group-name ApplicationCollGroupAzureFirewall  \
