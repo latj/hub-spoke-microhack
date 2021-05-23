@@ -401,17 +401,7 @@ Now check the routing for *vm-mgmt-server* by specifiying the nic *nic-mgmt-serv
 
 ## Task 3: Implement policy with Azure Firewall rules to connect to Internet
 
-Configure Azure Firewall to implement the same access as before :
-
-- Access from spoke-vnet to onprem-vnet is allowed
-- Access from spoke-vnet to spoke-vnet is allowed
-- Access to any destination is denied
-
-In the Azure Portal, create a new application rule collection for Azure Firewall as shown in the screenshot below.
-
-![image](images/manual-azfw-policy.png)
-
-Confirm that you can now access by usering following command
+In this task you will start to configure Appliction rules to allow traffic to Internet, in this senario we are using Azure Firewall with Azure Firewall Policy 
 
 
 ![image](images/azfw-public-ip.png)
@@ -524,6 +514,12 @@ Error code: NsgsNotAppliedOnNic
 ![image](images/networkwatcher-nexthop.png)
 
 ## Task 3: Workbook Azure Firewall
+
+In this senario an Azure workbook is already deployed, you can find it in the **hub-spoke-microhack**. Open that resouce, and click **Open workbook**
+
+![image](images/workbook-azurefirewall.png)
+
+When you open the Workbook you need to specify the workspace in **hub-spoke-microhack** resource group
 
 ### Overview page
 
