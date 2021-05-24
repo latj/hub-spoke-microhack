@@ -221,7 +221,8 @@ az network watcher test-ip-flow \
 # Challenge 2: Understand routing and vNet peering 
 
 In this challenge we will work with routing and peering in Virtual Networks, we will start by adding one more spoke virtual network to the hub network.
- 
+
+![image](images/challenge2.png)
 
 ## Task 1 : Deploy a new spoke Virtual Network
 
