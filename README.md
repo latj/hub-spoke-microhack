@@ -78,6 +78,7 @@ We are going to use a predefined ARM template to deploy the base environment. It
 To start the ARM deployment, follow the steps listed below:
 
 - Login to Azure cloud shell [https://shell.azure.com/](https://shell.azure.com/)
+- Ensure the choose **Bash** as the terminal, it will not fully work with PowerShell!
 - Ensure that you are operating within the correct subscription via:
 
 `az account show`
