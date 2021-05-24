@@ -213,7 +213,6 @@ az network watcher test-ip-flow \
 
 :point_right: The result of the challange:
 - Network Security Groups NSG, can be used to filter inbound and outboind traffic to subnets and nic on VMs
-- Application Security Groups ASG, can simlify the NSG rule by definding groups of Application
 
 
 
