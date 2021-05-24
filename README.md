@@ -1,6 +1,6 @@
 # **Azure Hub Spoke MicroHack**
 
-Work in progress
+
 # Contents
 
 [MicroHack introduction](https://github.com/latj/hub-spoke-microhack#Introduction)
