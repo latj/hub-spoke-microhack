@@ -433,19 +433,16 @@ In Azure Firewall you can also configure predefined fqdn tag for function like W
 
 ````Bash
 
-# Error!!!
-az network firewall policy rule-collection-group collection add-filter-collection -g hub-spoke-microhack \
-    --name Application-Collection2 \
-    --policy-name azurefirewallPolicy \
-    --rule-collection-group-name ApplicationCollGroupAzureFirewall  \
-    --name Application-Collection \
-    --action Allow \
-    --rule-name Allow-WindowsUpdate \
-    --rule-type ApplicationRule \
-    --source-addresses "10.200.0.0/16" \
-    --protocols Https=443 \
-    --fqdn-tags WindowsUpdate \
-    --collection-priority 100
+    az network firewall policy rule-collection-group collection rule add --collection-name Application-Collection \
+           --name Allow-WindowsUpdate \
+           --policy-name azurefirewallPolicy \
+           --rcg-name ApplicationCollGroupAzureFirewall \
+           --resource-group hub-spoke-microhack \
+           --rule-type ApplicationRule \
+           --fqdn-tags WindowsUpdate \
+           --source-addresses "10.200.0.0/16" 
+                                                                    
+    
 ````
 
 
