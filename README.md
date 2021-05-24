@@ -278,7 +278,7 @@ More info about [Virtual Network peering](https://docs.microsoft.com/en-us/azure
     --admin-username AzureAdmin
 ````
 
-- Verify that your can access the new VM as expected. The easiest way to do this is as follows; Once you have Azure Bastion access to the desktop of *vm-windows*, launch remote desktop (mstsc), and attempt a connection to *az-srv2-vm* (IP address 10.200.0.4). You should recieve the login prompt.
+- Verify that your can access the new VM as expected. The easiest way to do this is as follows; Once you have Azure Bastion access to the desktop of *vm-windows*, launch remote desktop (mstsc), and attempt a connection to *vm-mgmt-server* (IP address 10.200.0.4). You should recieve the login prompt.
 
 ## Task 3 : Check the routing for Virtual Machines
 
@@ -476,101 +476,7 @@ to Allow traffic we need first to create a Network rule collection, and then add
     --collection-priority 200
 ````
 
-## Task 5: Implement policy with Azure Firewall rules and route table for subnet to subnet traffic.
 
-In this task you send traffic to an other subnet in the same VNet to the firewall. To able to test this we need to have a new subnets in the same vnet. So we will start to create an extra subnet in the spoke you created before. And we also create an VM in that subnet.
-
-You can use the following commands to create a new *subnet* in **vnet-spoke2**
-
-
-````Bash
-    # add subnet and routetable to that subnet
-    az network vnet subnet create -g "hub-spoke-microhack" \
-    --vnet-name vnet-spoke2 \
-    -n snet-spoke-resources2 \
-    --address-prefixes 10.200.1.0/24 \
-    --route-table spoke-routes
-    # Create a VM nic in the new subnet
-    az network nic create --resource-group hub-spoke-microhack \
-    --name nic-mgmt-server2 \
-    --subnet snet-spoke-resources2 \
-    --private-ip-address 10.200.1.4 \
-    --vnet-name vnet-spoke2
-    # Create a VM connected to the newly created NIC
-    az vm create --resource-group hub-spoke-microhack \
-    --name vm-mgmt-server2 \
-    --image win2019datacenter \
-    --nics nic-mgmt-server2 \
-    --admin-username AzureAdmin
-````
-
-If we look at effective route table for the newly created VM, it looks the same as the other VM in the other subnet
-
-````Bash
-    #show effective route table
-    az network nic show-effective-route-table -g "hub-spoke-microhack" \
-    -n "nic-mgmt-server" \
-    --output table
-    az network nic show-effective-route-table -g "hub-spoke-microhack" \
-    -n "nic-mgmt-server2" \
-    --output table
-````
-
-If you check the effective route table it says **10.200.0.0/16 Vnetlocal** that mean that the traffic will go directlly to destination and do not through the firewall. So to be able to do that we need to create a more specific route for the each sunet.
-
-
-- So first you ceate a new route table for the subnet. And you see a second route for *10.200.0.0/24* to *10.0.3.4*
-
-
-````Bash
-    az network route-table create -g "hub-spoke-microhack"  \
-      -n spoke2-res2-route
-    az network route-table route create -g "hub-spoke-microhack" \
-      --route-table-name spoke2-res2-route \
-      -n DefaultRoute \
-      --next-hop-type VirtualAppliance \
-      --address-prefix 0.0.0.0/0 \
-      --next-hop-ip-address 10.0.3.4
-     az network route-table route create -g "hub-spoke-microhack" \
-      --route-table-name spoke2-res2-route \
-      -n subnetRoute \
-      --next-hop-type VirtualAppliance \
-      --address-prefix 10.200.0.0/24 \
-      --next-hop-ip-address 10.0.3.4
-````
-
-- Now we need to assign the new route table to the subnet, but only one route table can be assigned, so first we need to unassign the other one. Se command below.
-
-````Bash
-    # assign routetable to subnets in spokes 
-    az network vnet subnet update -g "hub-spoke-microhack" \
-    -n snet-spoke-resources2 \
-    --vnet-name vnet-spoke2 \
-    --route-table spoke2-res2-route
-````
-- Ok now we have configured the routing from one side and now we need to configure from the other side.
-
-````Bash
-    az network route-table create -g "hub-spoke-microhack"  \
-      -n spoke2-res-route
-    az network route-table route create -g "hub-spoke-microhack" \
-      --route-table-name spoke2-res2-route \
-      -n DefaultRoute \
-      --next-hop-type VirtualAppliance \
-      --address-prefix 0.0.0.0/0 \
-      --next-hop-ip-address 10.0.3.4
-     az network route-table route create -g "hub-spoke-microhack" \
-      --route-table-name spoke2-res2-route \
-      -n subnetRoute \
-      --next-hop-type VirtualAppliance \
-      --address-prefix 10.200.1.0/24 \
-      --next-hop-ip-address 10.0.3.4
-          # assign routetable to subnets in spokes 
-    az network vnet subnet update -g "hub-spoke-microhack" \
-    -n snet-spoke-resources \
-    --vnet-name vnet-spoke2 \
-    --route-table spoke2-res-route
-````
 
 ## :checkered_flag: Results
 
