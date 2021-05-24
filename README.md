@@ -428,7 +428,7 @@ You will add an Application rule to allow the servers in *vnet-spoke2* to access
 ````
 Now you can verify if the rule is working. If you test to browse to https://docs.microsoft.com from the VM *vm-mgmt-server*
 
-In Azure Firewall you can also configure predefined fqdn tag for function like WindowsUpdate, WindowsDianostics, Azure Abckup and more see link for [info](https://docs.microsoft.com/en-us/azure/firewall/fqdn-tags)
+In Azure Firewall you can also configure predefined fqdn tag for function like WindowsUpdate, WindowsDianostics, Azure Backup and more see link for [info](https://docs.microsoft.com/en-us/azure/firewall/fqdn-tags)
 
 - To be able update VMs with Security Pacthes you need to Allow them to communicate to Windows Update, run the following command.
 
