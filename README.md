@@ -465,7 +465,19 @@ to Allow traffic we need first to create a Network rule collection, and then add
   az network firewall policy rule-collection-group collection add-filter-collection -g hub-spoke-microhack \
     --policy-name azurefirewallPolicy \
     --rule-collection-group-name NetworkCollGroupAzureFirewall  \
-    --name Network-Collection \
+    --name Network-Collection-Allow \
+    --action Allow \
+    --rule-name Allow-Webserver \
+    --rule-type NetworkRule \
+    --source-addresses "10.200.0.0/16" \
+    --destination-ports 80 \
+    --ip-protocols TCP UDP \
+    --destination-addresses "10.100.0.4"  \
+    --collection-priority 200
+  az network firewall policy rule-collection-group collection add-filter-collection -g hub-spoke-microhack \
+    --policy-name azurefirewallPolicy \
+    --rule-collection-group-name NetworkCollGroupAzureFirewall  \
+    --name Network-Collection-Deny \
     --action Deny \
     --rule-name Deny-http80 \
     --rule-type NetworkRule \
@@ -725,9 +737,18 @@ While you are waiting you can read more about how the policies are triggered. [E
 
 ## Task 3: Verify if Azure policy works
 
-Now you can verify that the poilcy working, you can do that by creating a new VNet in the Resource Group *spoke-microhack* with a subnet. After it been created you can check the activity log.
+Now you can verify that the poilcy is working, you can do that by creating a new VNet in the Resource Group *spoke-microhack* with a subnet. After it been created you can check the activity log.
 And after some time a Route Table will be created in the Resouce Group, and it will be assign to the subnets.
 
+- Command to create a new VNet
+
+````Bash
+az network vnet create -g spoke-microhack \
+  -n vnet-spoke3 \
+  --address-prefix 10.220.0.0/16 \
+  --subnet-name snet-spoke-resources \
+  --subnet-prefix 10.220.0.0/24
+````
 
 
 
