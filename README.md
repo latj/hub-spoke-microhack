@@ -176,7 +176,7 @@ To verify if the right access is configured, test it from the VM in onprem vnet 
 Do as follows; 
 Use Azure Bastion to access the desktop of *vm-windows*, 
 - Launch remote desktop (mstsc), and attempt a connection to *vm-web-server0* (IP address 10.100.0.5). You should not recieve the login prompt.
-- Lanuch a Internet Explorer and browse to *vm-web-server0* http://10.100.0.5 or *vm-web-server1* http://10.100.0.6 or *loadBalancer* http://10.100.0.4. and you will se the default web page.
+- Lanuch a Internet Explorer and browse to *vm-web-server0* http://10.100.0.5 or *vm-web-server1* http://10.100.0.6 or *loadBalancer* http://10.100.0.4. and you will se the default web page. Note the IP of the webservers can differ due some timing issues during deployment.
 
 ## Task 3 : Verify the network access with NetworkWatcher 
 You can verify the access with the NetworkWatcher service in Azure, you can read more about the service [here](https://docs.microsoft.com/en-us/azure/network-watcher/network-watcher-monitoring-overview)
