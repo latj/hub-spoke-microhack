@@ -370,7 +370,7 @@ Now we have configured the route table, now we need to assign it, to each subnet
 
 ````
 
-Now we have configured route-table for all spokes. For the onprem traffic we need to defined the route table for the Virtual Network Gateway. Find the Route Table "gateway-route" and check the next hop for each spoke. It isn't recommended to configure 0.0.0.0/0 you need to do one entry per spoke vnet. 
+Now we have configured route-table for all spokes. For the onprem traffic we need to defined the route table for the Virtual Network Gateway. Find the Route Table "gateway-route" and check the next hop for each spoke. It isn't recommended to configure 0.0.0.0/0 you need to do one entry per spoke vnet. The route for the first spoke already exist. So you need to add the route for **vnet-spoke2**. Dont forget to click **Save**.
 
 ![image](images/gateway-route.png)
 
