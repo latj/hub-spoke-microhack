@@ -434,8 +434,8 @@ In Azure Firewall you can also configure predefined fqdn tag for function like W
 ````Bash
 
 # Error!!!
-az network firewall policy rule-collection-group collection rule add -g hub-spoke-microhack \
-    --collection-name Application-Collection \
+az network firewall policy rule-collection-group collection add-filter-collection -g hub-spoke-microhack \
+    --name Application-Collection2 \
     --policy-name azurefirewallPolicy \
     --rule-collection-group-name ApplicationCollGroupAzureFirewall  \
     --name Application-Collection \
@@ -473,7 +473,8 @@ to Allow traffic we need first to create a Network rule collection, and then add
     --destination-ports 80 \
     --ip-protocols TCP UDP \
     --destination-addresses "10.100.0.0/16"  \
-    --collection-priority 200
+    --collection-priority 201
+ 
 ````
 
 
@@ -575,120 +576,122 @@ So in the Azure Portal navigate to the Azure Policy and then definitions, and cl
 - In the policy rule remove the default one. Copy and paste the policy below instead.
 
 ````json
-    "parameters": {
-      "defaultRoute": {
-        "type": "String",
-        "metadata": {
-          "displayName": "Default route to add into UDR",
-          "description": "Policy will deploy a default route table to a vnet"
-        }
-      },
-      "vnetRegion": {
-        "type": "String",
-        "metadata": {
-          "displayName": "VNet Region",
-          "description": "Regional VNet hub location",
-          "strongType": "location"
-        }
-      },
-      "effect": {
-        "type": "String",
-        "metadata": {
-          "displayName": "Effect",
-          "description": "Enable or disable the execution of the policy"
+    {
+  "mode": "Indexed",
+  "policyRule": {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.Network/virtualNetworks"
         },
-        "allowedValues": [
-          "DeployIfNotExists",
-          "Disabled"
-        ],
-        "defaultValue": "DeployIfNotExists"
-      }
+        {
+          "field": "location",
+          "equals": "[parameters('vnetRegion')]"
+        }
+      ]
     },
-    "policyRule": {
-      "if": {
-        "allOf": [
-          {
-            "field": "type",
-            "equals": "Microsoft.Network/virtualNetworks"
-          },
-          {
-            "field": "location",
-            "equals": "[parameters('vnetRegion')]"
-          }
-        ]
-      },
-      "then": {
-        "effect": "[parameters('effect')]",
-        "details": {
-          "type": "Microsoft.Network/routeTables",
-          "roleDefinitionIds": [
-            "/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7"
-          ],
-          "existenceCondition": {
-            "allOf": [
-              {
-                "field": "Microsoft.Network/routeTables/routes[*].nextHopIpAddress",
-                "equals": "[parameters('defaultRoute')]"
+    "then": {
+      "effect": "[parameters('effect')]",
+      "details": {
+        "type": "Microsoft.Network/routeTables",
+        "roleDefinitionIds": [
+          "/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7"
+        ],
+        "existenceCondition": {
+          "allOf": [
+            {
+              "field": "Microsoft.Network/routeTables/routes[*].nextHopIpAddress",
+              "equals": "[parameters('defaultRoute')]"
+            }
+          ]
+        },
+        "deployment": {
+          "properties": {
+            "mode": "incremental",
+            "parameters": {
+              "udrName": {
+                "value": "[concat(field('name'),'-udr')]"
+              },
+              "udrLocation": {
+                "value": "[field('location')]"
+              },
+              "defaultRoute": {
+                "value": "[parameters('defaultRoute')]"
               }
-            ]
-          },
-          "deployment": {
-            "properties": {
-              "mode": "incremental",
+            },
+            "template": {
+              "$schema": "http://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json",
+              "contentVersion": "1.0.0.0",
               "parameters": {
                 "udrName": {
-                  "value": "[concat(field('name'),'-udr')]"
+                  "type": "string"
                 },
                 "udrLocation": {
-                  "value": "[field('location')]"
+                  "type": "string"
                 },
                 "defaultRoute": {
-                  "value": "[parameters('defaultRoute')]"
+                  "type": "string"
                 }
               },
-              "template": {
-                "$schema": "http://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json",
-                "contentVersion": "1.0.0.0",
-                "parameters": {
-                  "udrName": {
-                    "type": "string"
-                  },
-                  "udrLocation": {
-                    "type": "string"
-                  },
-                  "defaultRoute": {
-                    "type": "string"
-                  }
-                },
-                "variables": {},
-                "resources": [
-                  {
-                    "type": "Microsoft.Network/routeTables",
-                    "name": "[parameters('udrName')]",
-                    "apiVersion": "2020-08-01",
-                    "location": "[parameters('udrLocation')]",
-                    "properties": {
-                      "routes": [
-                        {
-                          "name": "AzureFirewallRoute",
-                          "properties": {
-                            "addressPrefix": "0.0.0.0/0",
-                            "nextHopType": "VirtualAppliance",
-                            "nextHopIpAddress": "[parameters('defaultRoute')]"
-                          }
+              "variables": {},
+              "resources": [
+                {
+                  "type": "Microsoft.Network/routeTables",
+                  "name": "[parameters('udrName')]",
+                  "apiVersion": "2020-08-01",
+                  "location": "[parameters('udrLocation')]",
+                  "properties": {
+                    "routes": [
+                      {
+                        "name": "AzureFirewallRoute",
+                        "properties": {
+                          "addressPrefix": "0.0.0.0/0",
+                          "nextHopType": "VirtualAppliance",
+                          "nextHopIpAddress": "[parameters('defaultRoute')]"
                         }
-                      ]
-                    }
+                      }
+                    ]
                   }
-                ],
-                "outputs": {}
-              }
+                }
+              ],
+              "outputs": {}
             }
           }
         }
       }
     }
+  },
+  "parameters": {
+    "defaultRoute": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Default route to add into UDR",
+        "description": "Policy will deploy a default route table to a vnet"
+      }
+    },
+    "vnetRegion": {
+      "type": "String",
+      "metadata": {
+        "displayName": "VNet Region",
+        "description": "Regional VNet hub location",
+        "strongType": "location"
+      }
+    },
+    "effect": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Effect",
+        "description": "Enable or disable the execution of the policy"
+      },
+      "allowedValues": [
+        "DeployIfNotExists",
+        "Disabled"
+      ],
+      "defaultValue": "DeployIfNotExists"
+    }
   }
+}
 ````
 - Click Save
 
