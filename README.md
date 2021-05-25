@@ -539,6 +539,8 @@ In this senario an Azure workbook is already deployed, you can find it in the **
 
 ![image](images/workbook-azurefirewall.png)
 
+More info about the Azure Firewall workbook, and how to deploy it. [Azure Firewall workbook](https://docs.microsoft.com/en-us/azure/firewall/firewall-workbook)
+
 When you open the Workbook you need to specify the workspace in **hub-spoke-microhack** resource group and the **Azure Firewall**
 
 ### Overview page
