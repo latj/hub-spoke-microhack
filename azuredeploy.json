@@ -25,7 +25,7 @@
         },
         "resourceGrouplocation": {
             "type": "string",
-            "defaultValue": "eastus"
+            "defaultValue": "[deployment().location]"
         }
     },
     "variables": {
